@@ -1,0 +1,8 @@
+MIDlet-1: PizzaShop,,PizzaShop
+MIDlet-Jar-Size: 2029
+MIDlet-Jar-URL: PizzaShop.jar
+MIDlet-Name: PizzaShop MIDlet Suite
+MIDlet-Vendor: MIDlet Suite Vendor
+MIDlet-Version: 1.0.0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
