@@ -7,12 +7,14 @@ import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
 import javax.microedition.lcdui.Displayable;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.TextBox;
+import javax.microedition.lcdui.Item;
+import javax.microedition.lcdui.ItemStateListener;
+import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 
-public class PizzaMobile extends MIDlet implements CommandListener
+public class PizzaMobile extends MIDlet implements CommandListener, ItemStateListener
 {
 	public class Registro
 	{
@@ -31,7 +33,7 @@ public class PizzaMobile extends MIDlet implements CommandListener
 	private Registro temp;
 	private String[] sabores = { "Muzzarela", "Presunto", "4 Queijos",
 			"Portuguesa" };
-	private String[] tamanhos = { "Pequena", "M�dia",
+	private String[] tamanhos = { "Pequena", "Média",
 			"Grande" };
 	private double[] precos = { 10.00, 15.00, 20.00 };
 	private Display display;
@@ -40,6 +42,7 @@ public class PizzaMobile extends MIDlet implements CommandListener
 	private Command cmdCancel, cmdTamanho, cmdQtde, cmdOutroPedido,
 			cmdFecharPedido, cmdOK, cmdVoltar;
 	private TextField txtQtde;
+	private StringItem siSabor, siTamanho, siValor, siTotal;
 
 	public PizzaMobile()
 	{
@@ -52,6 +55,11 @@ public class PizzaMobile extends MIDlet implements CommandListener
 		formQtde = new Form("Pizza Mobile");
 		formFechamento = new Form("Pizza Mobile");
 
+		/***********************************
+		 * 	Form Inicial = Escolha de sabor
+		 ***********************************/
+		// TODO: Form inicial não deveria ser escolha. Deveria ser outra coisa.
+		
 		sabor = new ChoiceGroup("Escolha o sabor:", Choice.EXCLUSIVE);
 		for (int i = 0; i < sabores.length; i++)
 		{
@@ -63,6 +71,10 @@ public class PizzaMobile extends MIDlet implements CommandListener
 		formInicial.setCommandListener(this);
 		formInicial.addCommand(cmdCancel);
 		formInicial.addCommand(cmdTamanho);
+		
+		/***********************************
+		 * Escolha de Tamanho
+		 ***********************************/
 
 		tamanho = new ChoiceGroup("Escolha o tamanho:", Choice.EXCLUSIVE);
 		for (int i = 0; i < tamanhos.length; i++)
@@ -76,14 +88,27 @@ public class PizzaMobile extends MIDlet implements CommandListener
 		formTamanho.addCommand(cmdVoltar);
 		formTamanho.addCommand(cmdQtde);
 		
+		/***********************************
+		 * Escolha da quantidade
+		 ***********************************/
+		
 		txtQtde = new TextField("Quantidade:", "0", 3, TextField.NUMERIC);
 		cmdOutroPedido = new Command("Fazer outro pedido", Command.OK, 1);
 		cmdFecharPedido = new Command("Fechar o pedido", Command.OK, 2);
+		siSabor = new StringItem("Sabor:", sabores[temp.sabor]);
+		siTamanho = new StringItem("Tamanho:", tamanhos[temp.tamanho] + " (R$" + precos[temp.tamanho] + ")");
+		siValor = new StringItem("Valor:", Double.toString(precos[temp.tamanho]));
+		siTotal = new StringItem("Sub total:", Double.toString( precos[temp.tamanho]* Integer.parseInt(txtQtde.getString()) ));
 		formQtde.addCommand(cmdVoltar);
 		formQtde.addCommand(cmdFecharPedido);
 		formQtde.addCommand(cmdOutroPedido);
 		formQtde.setCommandListener(this);
+		formQtde.setItemStateListener(this);
 		formQtde.append(txtQtde);
+		formQtde.append(siSabor);
+		formQtde.append(siTamanho);
+		formQtde.append(siValor);
+		formQtde.append(siTotal);
 		
 		cmdOK = new Command("OK", Command.OK, 1);
 	}
@@ -130,6 +155,10 @@ public class PizzaMobile extends MIDlet implements CommandListener
 			{
 				temp.tamanho = tamanho.getSelectedIndex();
 				display.setCurrent(formQtde);
+				siSabor.setText(sabores[temp.sabor]);
+				siTamanho.setText(tamanhos[temp.tamanho] + " (R$" + precos[temp.tamanho] + ")");
+				siValor.setText(Double.toString(precos[temp.tamanho]));
+				siTotal.setText(Double.toString( precos[temp.tamanho]* Integer.parseInt(txtQtde.getString()) ));
 			}
 		}
 		else if ( d == formQtde )
@@ -146,6 +175,19 @@ public class PizzaMobile extends MIDlet implements CommandListener
 			}
 		}
 
+	}
+
+	public void itemStateChanged(Item item)
+	{
+		if ( item == txtQtde )
+		{
+			String s = txtQtde.getString();
+			if ( txtQtde.getString().length() != 0 )
+				siTotal.setText(Double.toString( precos[temp.tamanho]* Integer.parseInt(txtQtde.getString()) ));
+			else
+				siTotal.setText("0.0");
+		}
+		
 	}
 
 }
