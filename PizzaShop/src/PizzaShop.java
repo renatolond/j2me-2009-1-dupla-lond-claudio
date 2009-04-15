@@ -1,3 +1,8 @@
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -23,6 +28,10 @@ public class PizzaShop extends MIDlet implements CommandListener
 	private TextField textQtdComprada, textNomeCliente, textEndereco, textTelefone;
 	private ChoiceGroup escolhaSabor, escolhaTamanho;
 	private RecordStore dadosCliente;
+	private ByteArrayInputStream streamleBytes;
+	private ByteArrayOutputStream streamEscreveBytes;
+	private DataInputStream streamLeDados;
+	private DataOutputStream streamEscreveDados;
 	
 	public PizzaShop()
 	{
@@ -44,7 +53,7 @@ public class PizzaShop extends MIDlet implements CommandListener
 		telaCadastro.append(textNomeCliente);
 		telaCadastro.append(textEndereco);
 		telaCadastro.append(textTelefone);
-		
+
 		telaCadastro.setCommandListener(this);
 		//----------------
 		
@@ -112,6 +121,8 @@ public class PizzaShop extends MIDlet implements CommandListener
 		{
 			if(c == comandoOKCadastro)
 			{
+				abreArquivo();
+				
 				display.setCurrent(telaSabor);
 			}
 			else if(c == comandoCancelCadastro)
@@ -127,7 +138,7 @@ public class PizzaShop extends MIDlet implements CommandListener
 			}
 			else if(c == comandoCancelSabores)
 			{
-				notifyDestroyed();
+				display.setCurrent(telaCadastro);
 			}
 		}
 		else if(d == telaTamanho)
@@ -157,7 +168,7 @@ public class PizzaShop extends MIDlet implements CommandListener
 		{
 			if(c == comandoOKConfirma)
 			{
-				
+				adicionaDados();
 			}
 			else if(c == comandoOKAdicionaPedido)
 			{
@@ -198,6 +209,44 @@ public class PizzaShop extends MIDlet implements CommandListener
 		
 		float precoTotal = precos[escolhaTamanho.getSelectedIndex()] * Integer.parseInt(textQtdComprada.getString());
 		return precoTotal;
+	}
+	
+	void abreArquivo()
+	{
+		try
+		{
+			dadosCliente = RecordStore.openRecordStore("Dados", true, RecordStore.AUTHMODE_ANY, true);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	void adicionaDados()
+	{
+		try
+		{
+			streamEscreveBytes = new ByteArrayOutputStream();
+			streamEscreveDados = new DataOutputStream(streamEscreveBytes);
+			
+			streamEscreveDados.writeUTF(textNomeCliente.getString());
+			streamEscreveDados.writeUTF(textEndereco.getString());
+			streamEscreveDados.writeUTF(textTelefone.getString());
+			streamEscreveDados.writeUTF(escolhaSabor.getString(escolhaSabor.getSelectedIndex()));
+			streamEscreveDados.writeUTF(escolhaTamanho.getString(escolhaTamanho.getSelectedIndex()));
+			streamEscreveDados.writeInt(Integer.parseInt(textQtdComprada.getString()));
+			streamEscreveDados.flush();
+			
+			byte[] bytesAEscrever = streamEscreveBytes.toByteArray();
+			streamEscreveBytes.close();
+			dadosCliente.addRecord(bytesAEscrever, 0, bytesAEscrever.length);
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 	
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException
