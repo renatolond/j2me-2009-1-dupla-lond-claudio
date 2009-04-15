@@ -15,6 +15,7 @@ import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
+import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 
 public class PizzaShop extends MIDlet implements CommandListener
@@ -120,9 +121,7 @@ public class PizzaShop extends MIDlet implements CommandListener
 		if(d == telaCadastro)
 		{
 			if(c == comandoOKCadastro)
-			{
-				abreArquivo();
-				
+			{				
 				display.setCurrent(telaSabor);
 			}
 			else if(c == comandoCancelCadastro)
@@ -168,10 +167,13 @@ public class PizzaShop extends MIDlet implements CommandListener
 		{
 			if(c == comandoOKConfirma)
 			{
+				abreArquivo();
 				adicionaDados();
+				listaPedidos();
 			}
 			else if(c == comandoOKAdicionaPedido)
 			{
+				adicionaDados();
 				display.setCurrent(telaSabor);
 			}
 			else if(c == comandoCancelQuantidade)
@@ -236,11 +238,32 @@ public class PizzaShop extends MIDlet implements CommandListener
 			streamEscreveDados.writeUTF(escolhaSabor.getString(escolhaSabor.getSelectedIndex()));
 			streamEscreveDados.writeUTF(escolhaTamanho.getString(escolhaTamanho.getSelectedIndex()));
 			streamEscreveDados.writeInt(Integer.parseInt(textQtdComprada.getString()));
+			streamEscreveDados.writeFloat(calculaPreco());
 			streamEscreveDados.flush();
 			
 			byte[] bytesAEscrever = streamEscreveBytes.toByteArray();
-			streamEscreveBytes.close();
 			dadosCliente.addRecord(bytesAEscrever, 0, bytesAEscrever.length);
+			streamEscreveBytes.close();
+			streamEscreveDados.close();
+
+			
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	void listaPedidos()
+	{
+		try
+		{
+			RecordEnumeration pedidos = dadosCliente.enumerateRecords(null, null, false);
+			
+			while(pedidos.hasNextElement())
+			{
+				
+			}
 			
 		}
 		catch(Exception e)
