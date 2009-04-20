@@ -3,7 +3,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
@@ -20,11 +19,13 @@ import javax.microedition.rms.RecordStore;
 
 public class NotasAlunos extends MIDlet implements CommandListener
 {
+	int numeroAviso = -1;
 	private Display display;
 	private List telaInicial;
 	private Command comandoCancelaInicio, comandoOKCadastro, comandoCancelCadastro; 
 	private Form telaCadastroNotas, telaConsultaNotas;
 	private TextField textDisciplina, textDRE, textNota;
+	private StringItem aviso;
 	private RecordStore dadosAlunos;
 	private ByteArrayInputStream streamleBytes;
 	private ByteArrayOutputStream streamEscreveBytes;
@@ -57,6 +58,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		comandoCancelCadastro = new Command("Voltar", Command.CANCEL, 1);
 		telaCadastroNotas.addCommand(comandoOKCadastro);
 		telaCadastroNotas.addCommand(comandoCancelCadastro);
+		aviso = new StringItem("", "Todos os campos devem ser preenchidos");
 		telaCadastroNotas.setCommandListener(this);
 		//----------------
 
@@ -85,24 +87,28 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		}
 		else if(d == telaCadastroNotas)
 		{
-			StringItem aviso = new StringItem("", "", StringItem.PLAIN);
 			
 			if(c == comandoOKCadastro)
-			{
+			{			
 				
-				aviso.setText("");
-				telaCadastroNotas.append(aviso);
 				if(textDisciplina.getString().equals("") || textDRE.getString().equals("") || textNota.getString().equals(""))
 				{
-					aviso.setText("Todos os campos devem ser preenchidos");
-					telaCadastroNotas.append(aviso);
-					//textDisciplina.delete(0, textDisciplina.getString().length());
-					//textDRE.delete(0, textDisciplina.getString().length());
-					//textNota.delete(0, textDisciplina.getString().length());
+					if(numeroAviso != -1)
+					{
+						telaCadastroNotas.delete(numeroAviso);
+					}
+					numeroAviso = telaCadastroNotas.append(aviso);
 				}
 				else
 				{
-					adicionaDados();
+					telaCadastroNotas.delete(numeroAviso);
+					textDisciplina.delete(0, textDisciplina.getString().length());
+					textDRE.delete(0, textDRE.getString().length());
+					textNota.delete(0, textNota.getString().length());
+					aviso.setText("Nota salva com Sucesso");
+					numeroAviso = telaCadastroNotas.append(aviso);
+
+					//adicionaDados();
 				}
 					
 			}
