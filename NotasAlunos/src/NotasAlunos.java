@@ -3,7 +3,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
-import javax.microedition.lcdui.Canvas;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -13,7 +12,6 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.Item;
 import javax.microedition.lcdui.List;
 import javax.microedition.lcdui.StringItem;
-import javax.microedition.lcdui.TextBox;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
@@ -22,13 +20,11 @@ import javax.microedition.rms.RecordStore;
 
 public class NotasAlunos extends MIDlet implements CommandListener
 {
-	private int quantidadeEscolhida;
 	private Display display;
 	private List telaInicial;
 	private Command comandoCancelaInicio, comandoOKCadastro, comandoCancelCadastro; 
 	private Form telaCadastroNotas, telaConsultaNotas;
 	private TextField textDisciplina, textDRE, textNota;
-	private ChoiceGroup escolhaSabor, escolhaTamanho;
 	private RecordStore dadosAlunos;
 	private ByteArrayInputStream streamleBytes;
 	private ByteArrayOutputStream streamEscreveBytes;
@@ -89,22 +85,31 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		}
 		else if(d == telaCadastroNotas)
 		{
-			String aviso = "Todos os dados devem ser preenchidos";
+			StringItem aviso = new StringItem("", "", StringItem.PLAIN);
 			
 			if(c == comandoOKCadastro)
 			{
 				
-				//adicionaDados();
+				aviso.setText("");
+				telaCadastroNotas.append(aviso);
 				if(textDisciplina.getString().equals("") || textDRE.getString().equals("") || textNota.getString().equals(""))
 				{
+					aviso.setText("Todos os campos devem ser preenchidos");
 					telaCadastroNotas.append(aviso);
-					textDisciplina.delete(0, textDisciplina.getString().length());
+					//textDisciplina.delete(0, textDisciplina.getString().length());
+					//textDRE.delete(0, textDisciplina.getString().length());
+					//textNota.delete(0, textDisciplina.getString().length());
 				}
-				//display.setCurrent(telaCadastroNotas);
+				else
+				{
+					adicionaDados();
+				}
+					
 			}
 			else if(c == comandoCancelCadastro)
 			{
-				display.setCurrent(telaInicial);
+				
+				display.setCurrent(telaCadastroNotas);
 			}
 		}
 		
