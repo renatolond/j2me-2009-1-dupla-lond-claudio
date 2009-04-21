@@ -2,7 +2,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
 import javax.microedition.lcdui.Display;
@@ -101,6 +100,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 				}
 				else
 				{
+					adicionaDados();
 					telaCadastroNotas.delete(numeroAviso);
 					textDisciplina.delete(0, textDisciplina.getString().length());
 					textDRE.delete(0, textDRE.getString().length());
@@ -108,14 +108,16 @@ public class NotasAlunos extends MIDlet implements CommandListener
 					aviso.setText("Nota salva com Sucesso");
 					numeroAviso = telaCadastroNotas.append(aviso);
 
-					//adicionaDados();
 				}
-					
 			}
 			else if(c == comandoCancelCadastro)
 			{
-				
-				display.setCurrent(telaCadastroNotas);
+				telaCadastroNotas.delete(numeroAviso);
+				textDisciplina.delete(0, textDisciplina.getString().length());
+				textDRE.delete(0, textDRE.getString().length());
+				textNota.delete(0, textNota.getString().length());
+				display.setCurrent(telaInicial);
+
 			}
 		}
 		
@@ -137,6 +139,9 @@ public class NotasAlunos extends MIDlet implements CommandListener
 			dadosAlunos.addRecord(bytesAEscrever, 0, bytesAEscrever.length);
 			streamEscreveBytes.close();
 			streamEscreveDados.close();
+
+			System.out.println(dadosAlunos);
+			return;
 
 			
 		}
