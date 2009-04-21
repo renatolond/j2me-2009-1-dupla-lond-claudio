@@ -59,6 +59,8 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		{
 			e.printStackTrace();
 		}
+		listNotas.setCommandListener(this);
+		listNotas.addCommand(cmdVoltar);
 	}
 
 	private void AbreRMS()
@@ -144,6 +146,18 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		if (d == formNotas)
 		{
 			commandActionFormNotas(c);
+		}
+		if (d == listNotas)
+		{
+			commandActionListNotas(c);
+		}
+	}
+
+	private void commandActionListNotas(Command c)
+	{
+		if ( c == cmdVoltar )
+		{
+			display.setCurrent(listEscolha);
 		}
 	}
 
