@@ -14,6 +14,7 @@ import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
 import javax.microedition.rms.RecordEnumeration;
+import javax.microedition.rms.RecordFilter;
 import javax.microedition.rms.RecordStore;
 
 public class NotasAlunos extends MIDlet implements CommandListener
@@ -21,14 +22,16 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	int numeroAviso = -1;
 	private Display display;
 	private List telaInicial;
-	private Command comandoCancelaInicio, comandoOKCadastro, comandoCancelCadastro; 
-	private Form telaCadastroNotas, telaConsultaNotas;
-	private TextField textDisciplina, textDRE, textNota;
-	private StringItem aviso;
+	private Command comandoCancelaInicio, comandoOKCadastro, comandoCancelCadastro,
+			 comandoOKFiltro, comandoCancelFiltro, comandoCancelListagem; 
+	private Form telaCadastroNotas, telaFiltro, telaListagem;
+	private TextField textDisciplina, textDRE, textNota, textDREFiltro;
+	private StringItem aviso, nota, disciplina, dre;
 	private RecordStore dadosAlunos;
-	private ByteArrayInputStream streamleBytes;
+	private ByteArrayInputStream streamLeBytes, streamLeBytesFiltro;
 	private ByteArrayOutputStream streamEscreveBytes;
-	private DataInputStream streamLeDados;
+	private DataInputStream streamLeDados, streamLeDadosFiltro;
+	public String dreRegistro, dreFiltro, lixo;
 	private DataOutputStream streamEscreveDados;
 	
 	public NotasAlunos()
@@ -57,10 +60,28 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		comandoCancelCadastro = new Command("Voltar", Command.CANCEL, 1);
 		telaCadastroNotas.addCommand(comandoOKCadastro);
 		telaCadastroNotas.addCommand(comandoCancelCadastro);
-		aviso = new StringItem("", "Todos os campos devem ser preenchidos");
 		telaCadastroNotas.setCommandListener(this);
 		//----------------
 
+		//Tela de Filtro
+		telaFiltro = new Form("DRE");
+		textDREFiltro = new TextField("DRE: ", "", 9, TextField.NUMERIC);
+		telaFiltro.append(textDREFiltro);
+		
+		comandoOKFiltro = new Command("Ver", Command.OK, 1);
+		comandoCancelFiltro = new Command("Voltar", Command.CANCEL, 1);
+		
+		telaFiltro.addCommand(comandoOKFiltro);
+		telaFiltro.addCommand(comandoCancelFiltro);
+		telaFiltro.setCommandListener(this);
+		//----------------
+		
+		//Tela de Listagem
+		telaListagem = new Form("Notas");
+		
+		comandoCancelListagem = new Command("Voltar", Command.CANCEL, 1);
+		telaListagem.addCommand(comandoCancelListagem);
+		telaListagem.setCommandListener(this);		
 	}
 
 	public void commandAction(Command c, Displayable d)
@@ -79,7 +100,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 				}
 				else if(telaInicial.getSelectedIndex() == 1)
 				{
-					display.setCurrent(telaConsultaNotas);
+					display.setCurrent(telaFiltro);
 				}
 			}
 			
@@ -89,35 +110,61 @@ public class NotasAlunos extends MIDlet implements CommandListener
 			
 			if(c == comandoOKCadastro)
 			{			
-				
+				aviso = new StringItem("", "Todos os campos devem ser preenchidos");
 				if(textDisciplina.getString().equals("") || textDRE.getString().equals("") || textNota.getString().equals(""))
 				{
 					if(numeroAviso != -1)
 					{
 						telaCadastroNotas.delete(numeroAviso);
+						numeroAviso = -1;
 					}
 					numeroAviso = telaCadastroNotas.append(aviso);
 				}
 				else
 				{
 					adicionaDados();
-					telaCadastroNotas.delete(numeroAviso);
+					if(numeroAviso != -1){telaCadastroNotas.delete(numeroAviso);}
 					textDisciplina.delete(0, textDisciplina.getString().length());
 					textDRE.delete(0, textDRE.getString().length());
 					textNota.delete(0, textNota.getString().length());
 					aviso.setText("Nota salva com Sucesso");
 					numeroAviso = telaCadastroNotas.append(aviso);
+					display.setCurrent(telaCadastroNotas);
 
 				}
 			}
 			else if(c == comandoCancelCadastro)
 			{
-				telaCadastroNotas.delete(numeroAviso);
+				if(numeroAviso != -1)
+				{	
+					telaCadastroNotas.delete(numeroAviso);
+					numeroAviso = -1;
+				}
 				textDisciplina.delete(0, textDisciplina.getString().length());
 				textDRE.delete(0, textDRE.getString().length());
 				textNota.delete(0, textNota.getString().length());
 				display.setCurrent(telaInicial);
 
+			}
+		}
+		else if(d == telaFiltro)
+		{
+			if(c == comandoOKFiltro)
+			{
+				listaNotas();
+				display.setCurrent(telaListagem);
+			}
+			else if(c == comandoCancelFiltro)
+			{
+				display.setCurrent(telaInicial);
+			}
+		}
+		
+		else if(d == telaListagem)
+		{
+			if(c == comandoCancelListagem)
+			{
+				display.setCurrent(telaFiltro);
 			}
 		}
 		
@@ -126,7 +173,8 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	void adicionaDados()
 	{
 		try
-		{
+		{			
+			abreArquivo();
 			streamEscreveBytes = new ByteArrayOutputStream();
 			streamEscreveDados = new DataOutputStream(streamEscreveBytes);
 			
@@ -137,14 +185,12 @@ public class NotasAlunos extends MIDlet implements CommandListener
 			
 			byte[] bytesAEscrever = streamEscreveBytes.toByteArray();
 			dadosAlunos.addRecord(bytesAEscrever, 0, bytesAEscrever.length);
+			
 			streamEscreveBytes.close();
 			streamEscreveDados.close();
-
-			System.out.println(dadosAlunos);
-			return;
-
-			
+			fechaArquivo();
 		}
+		
 		catch(Exception e)
 		{
 			e.printStackTrace();
@@ -153,14 +199,34 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	
 	void listaNotas()
 	{
+		if(telaListagem.size() != 0){telaListagem.deleteAll();}
+		Filtra filtra = new Filtra(dre.getText());
+		
 		try
 		{
-			RecordEnumeration pedidos = dadosAlunos.enumerateRecords(null, null, false);
+			abreArquivo();
+			RecordEnumeration dados = dadosAlunos.enumerateRecords(filtra, null, false);
 			
-			while(pedidos.hasNextElement())
+			while(dados.hasNextElement())
 			{
 				
+				streamLeBytes = new ByteArrayInputStream(dados.nextRecord());
+				streamLeDados = new DataInputStream(streamLeBytes);
+				
+				disciplina = new StringItem("Disciplina: ",streamLeDados.readUTF()); 
+				dre = new StringItem("DRE: " , Integer.toString(streamLeDados.readInt()));
+				nota = new StringItem("Nota: ", Float.toString(streamLeDados.readFloat()));
+				
+				telaListagem.append(disciplina);
+				telaListagem.append(dre);
+				telaListagem.append(nota);
+
+				streamLeBytes.close();
+				streamLeDados.close();
+				
 			}
+			
+			fechaArquivo();
 			
 		}
 		catch(Exception e)
@@ -169,6 +235,69 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		}
 	}
 	
+	class Filtra implements RecordFilter
+	{
+
+		
+		public String criterio = null;
+		
+		public Filtra(String criterio)
+		{
+			dreFiltro = criterio;
+		}
+		public boolean matches(byte[] registroLido)
+		{
+			streamLeBytesFiltro = new ByteArrayInputStream(registroLido);
+			streamLeDadosFiltro = new DataInputStream(streamLeBytesFiltro);
+
+			try
+			{
+				lixo = streamLeDadosFiltro.readUTF();
+				dreRegistro = Integer.toString(streamLeDadosFiltro.readInt());
+
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			
+			if(dreRegistro.equals(dreFiltro))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+			
+			
+		}		
+		
+	}
+	void abreArquivo()
+	{
+		try
+		{
+			dadosAlunos = RecordStore.openRecordStore("CadastroAlunos", true);
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+	}
+	
+	void fechaArquivo()
+	{
+		try
+		{
+			dadosAlunos.closeRecordStore();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException
 	{
 
