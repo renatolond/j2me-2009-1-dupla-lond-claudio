@@ -200,7 +200,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	void listaNotas()
 	{
 		if(telaListagem.size() != 0){telaListagem.deleteAll();}
-		Filtra filtra = new Filtra(dre.getText());
+		Filtra filtra = new Filtra(textDREFiltro.getString());
 		
 		try
 		{
