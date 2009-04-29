@@ -13,18 +13,21 @@ import javax.microedition.lcdui.StringItem;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
+import javax.microedition.rms.RecordEnumeration;
+import javax.microedition.rms.RecordFilter;
 import javax.microedition.rms.RecordStore;
 
 public class NotasAlunos extends MIDlet implements CommandListener
 {
 	Display display;
-	Form formNotas;
+	Form formNotas, formFiltro;
 	List listEscolha, listNotas;
-	Command cmdCancelar, cmdVoltar, cmdSalvar;
-	TextField txtDisciplina, txtDRE, txtNota;
+	Command cmdCancelar, cmdVoltar, cmdSalvar, cmdOK;
+	TextField txtDisciplina, txtDRE, txtNota, txtFiltroDRE;
 	String opcoes[] = { "Adicionando Notas", "Consultando Notas" };
 	StringItem strErro;
 	RecordStore rsAlunos;
+	Filtra filtra;
 
 	public NotasAlunos()
 	{
@@ -34,33 +37,8 @@ public class NotasAlunos extends MIDlet implements CommandListener
 
 		CriaListEscolha();
 		CriaFormNotas();
+		CriaFormFiltro();
 		CriaListNotas();
-	}
-
-	private void CriaListNotas()
-	{
-		byte[] array = new byte[1024];
-		listNotas = new List("Consultando notas", List.EXCLUSIVE);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(array);
-		DataInputStream dInputStream = new DataInputStream(inputStream);
-		String registro;
-		try
-		{
-			for (int i = 1; i <= rsAlunos.getNumRecords(); i++)
-			{
-				rsAlunos.getRecord(i, array, 0);
-				registro = dInputStream.readUTF() + " "
-						+ dInputStream.readInt() + " "
-						+ dInputStream.readDouble();
-				listNotas.append(registro, null);
-				inputStream.reset();
-			}
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		listNotas.setCommandListener(this);
-		listNotas.addCommand(cmdVoltar);
 	}
 
 	private void AbreRMS()
@@ -68,17 +46,6 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		try
 		{
 			rsAlunos = RecordStore.openRecordStore("CadastroAlunos", true);
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	private void fechaRMS()
-	{
-		try
-		{
-			rsAlunos.closeRecordStore();
 		} catch (Exception e)
 		{
 			e.printStackTrace();
@@ -117,6 +84,35 @@ public class NotasAlunos extends MIDlet implements CommandListener
 
 	}
 
+	private void CriaFormFiltro()
+	{
+		formFiltro = new Form("Filtrar DRE");
+		formFiltro.setCommandListener(this);
+		cmdOK = new Command("OK", Command.OK, 1);
+		formFiltro.addCommand(cmdOK);
+		formFiltro.addCommand(cmdVoltar);
+		txtFiltroDRE = new TextField("DRE", null, 9, TextField.NUMERIC);
+		formFiltro.append(txtFiltroDRE);
+	}
+
+	private void CriaListNotas()
+	{
+		listNotas = new List("Consultando notas", List.EXCLUSIVE);
+		listNotas.setCommandListener(this);
+		listNotas.addCommand(cmdVoltar);
+	}
+
+	private void fechaRMS()
+	{
+		try
+		{
+			rsAlunos.closeRecordStore();
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
 	protected void destroyApp(boolean unconditional)
 			throws MIDletStateChangeException
 	{
@@ -133,8 +129,6 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	protected void startApp() throws MIDletStateChangeException
 	{
 		display.setCurrent(listEscolha);
-		// TODO Auto-generated method stub
-
 	}
 
 	public void commandAction(Command c, Displayable d)
@@ -151,13 +145,60 @@ public class NotasAlunos extends MIDlet implements CommandListener
 		{
 			commandActionListNotas(c);
 		}
+		if (d == formFiltro)
+		{
+			commandActionFormFiltro(c);
+		}
+	}
+
+	private void commandActionFormFiltro(Command c)
+	{
+		if (c == cmdVoltar)
+		{
+			display.setCurrent(listEscolha);
+		}
+		if (c == cmdOK)
+		{
+			filtra = new Filtra(txtFiltroDRE.getString());
+			listNotasApresenta();
+			display.setCurrent(listNotas);
+		}
+	}
+
+	private void listNotasApresenta()
+	{
+		byte[] array = new byte[1024];
+		String registro;
+		listNotas.deleteAll();
+		try
+		{
+			if (rsAlunos.getNumRecords() > 0)
+			{
+				RecordEnumeration pesquisa = rsAlunos.enumerateRecords(filtra,
+						null, false);
+				while (pesquisa.hasNextElement())
+				{
+					array = pesquisa.nextRecord();
+					ByteArrayInputStream inputStream = new ByteArrayInputStream(array);
+					DataInputStream dInputStream = new DataInputStream(inputStream);
+					registro = dInputStream.readUTF() + " "
+							+ dInputStream.readInt() + " "
+							+ dInputStream.readDouble();
+					listNotas.append(registro, null);
+					inputStream.reset();
+				}
+			}
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private void commandActionListNotas(Command c)
 	{
-		if ( c == cmdVoltar )
+		if (c == cmdVoltar)
 		{
-			display.setCurrent(listEscolha);
+			display.setCurrent(formFiltro);
 		}
 	}
 
@@ -168,7 +209,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 			if (listEscolha.getString(listEscolha.getSelectedIndex()) == opcoes[0])
 				display.setCurrent(formNotas);
 			if (listEscolha.getString(listEscolha.getSelectedIndex()) == opcoes[1])
-				display.setCurrent(listNotas);
+				display.setCurrent(formFiltro);
 		}
 		if (c == cmdCancelar)
 		{
@@ -244,4 +285,40 @@ public class NotasAlunos extends MIDlet implements CommandListener
 			e.printStackTrace();
 		}
 	}
+
+	class Filtra implements RecordFilter
+	{
+		private String criterio = null;
+
+		public Filtra(String criterio)
+		{
+			this.criterio = criterio;
+		}
+
+		public boolean matches(byte[] candidate)
+		{
+			int dre;
+			
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(candidate);
+			DataInputStream dInputStream = new DataInputStream(inputStream);
+
+			if (criterio.length() == 0) // Se não tem critério, não é pra filtrar nada.
+				return true;
+			
+			try
+			{
+				dInputStream.readUTF(); // Lê o nome da disciplina;
+				dre = dInputStream.readInt();
+				if ( Integer.parseInt(criterio) == dre )
+					return true;
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
+
+			return false;
+		}
+	}
+
 }
