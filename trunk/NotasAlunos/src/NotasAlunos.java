@@ -261,7 +261,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 				e.printStackTrace();
 			}
 			
-			if(dreRegistro.equals(dreFiltro))
+			if(dreRegistro.equals(dreFiltro) || dreFiltro.equals(""))
 			{
 				return true;
 			}
