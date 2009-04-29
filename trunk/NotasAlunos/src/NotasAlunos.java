@@ -300,7 +300,7 @@ public class NotasAlunos extends MIDlet implements CommandListener
 	}
 	protected void destroyApp(boolean arg0) throws MIDletStateChangeException
 	{
-
+		notifyDestroyed();
 	}
 
 	protected void pauseApp()
