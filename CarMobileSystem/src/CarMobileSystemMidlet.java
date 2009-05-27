@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 
 import javax.microedition.io.Connector;
+import javax.microedition.io.PushRegistry;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.CommandListener;
@@ -23,6 +24,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private MessageConnection smsConn;
 	private Message msg;
 	private Thread thread;
+	String smsConnection = "sms://:" + "5000";
 
 	public CarMobileSystemMidlet() {
 		display = Display.getDisplay(this);
@@ -32,6 +34,15 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		content.addCommand(cmdSair);
 		content.setCommandListener(this);
 		content.setString("Receiving...");
+		try {
+			PushRegistry.registerConnection(smsConnection, "CarMobileSystemMidlet", "*");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		resumeScreen = content;
 	}
 
@@ -47,9 +58,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	}
 
 	protected void startApp() throws MIDletStateChangeException {
-		String smsConnection = "sms://:" + "5000";
-		if ( smsConn == null )
-		{
+		if (smsConn == null) {
 			try {
 				smsConn = (MessageConnection) Connector.open(smsConnection);
 				smsConn.setMessageListener(this);
@@ -62,8 +71,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	}
 
 	public void commandAction(Command c, Displayable d) {
-		if ( c == cmdSair || c == Alert.DISMISS_COMMAND )
-		{
+		if (c == cmdSair || c == Alert.DISMISS_COMMAND) {
 			try {
 				destroyApp(false);
 			} catch (MIDletStateChangeException e) {
@@ -74,29 +82,40 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	}
 
 	public void run() {
-		try {
-			msg = smsConn.receive();
-			if ( msg != null )
-			{
-				if ( msg instanceof TextMessage )
-				{
-					content.setString(((TextMessage)msg).getPayloadText());
+		while (true) {
+			try {
+				msg = smsConn.receive();
+				if (msg != null) {
+					String myMsg =((TextMessage) msg).getPayloadText();
+					if ( myMsg.equals(MinhaSenha()) )
+					{
+						FoiRoubado();
+					}
+					msg = null;
 				}
-				display.setCurrent(content);
+			} catch (InterruptedIOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (InterruptedIOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
+
+	}
+
+	private void FoiRoubado() {
+		// TODO Botar o PushRegistry() pra timer e tal 
 		
 	}
 
+	private String MinhaSenha() {
+		// TODO Guardar e pegar de um RMS
+		return null;
+	}
+
 	public void notifyIncomingMessage(MessageConnection conn) {
-		if ( thread == null )
-		{
+		if (thread == null) {
 			thread = new Thread(this);
 			thread.start();
 		}
