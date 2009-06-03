@@ -15,6 +15,7 @@ import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 import javax.microedition.midlet.MIDlet;
 import javax.microedition.midlet.MIDletStateChangeException;
+import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.wireless.messaging.Message;
 import javax.wireless.messaging.MessageConnection;
@@ -200,18 +201,30 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 
 	boolean verificaSenha()  //Temos que comparar a senha do SMS com a do RecordStore
 	{
-		String senhaDoSMS = new String(); //Fazendo de conta que tenho a senha
+		String senhaSMS = new String(); //Fazendo de conta que tenho a senha
 		
+		if(senhaSMS.equals(leSenha()))
+		{
+			return true;
+		}
 		
-		return true;
+		return false;
 	}
 	
 	String leSenha()
 	{
-		abreArquivo();
-		//streamLeBytes = new ByteArrayInputStream(dadosSenha.getRecord());
-		//streamLeDados = new DataInputStream();
-		return "blah";
+		String senha = new String();
+		try
+		{
+			abreArquivo();
+			RecordEnumeration dados = dadosSenha.enumerateRecords(null, null, false);
+			streamLeBytes = new ByteArrayInputStream(dados.nextRecord());
+			streamLeDados = new DataInputStream(streamLeBytes);
+			senha = streamLeDados.readUTF();
+		}
+		catch (Exception e) {e.printStackTrace();}
+		
+		return 	senha;
 	}
 	
 
