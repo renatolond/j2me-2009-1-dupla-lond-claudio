@@ -1,3 +1,4 @@
+MIDlet-2: StolenMidlet,,CarMobileSystemMidlet$StolenMidlet
 MIDlet-1: CarMobileSystemMidlet,,CarMobileSystemMidlet
 MIDlet-Jar-URL: CarMobileSystem.jar
 MicroEdition-Configuration: CLDC-1.1
