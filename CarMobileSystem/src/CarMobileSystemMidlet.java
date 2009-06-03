@@ -86,7 +86,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	protected void startApp() throws MIDletStateChangeException {
 		
 		//Temos que colocar algum tipo de flag pra ver se é a primeira vez que
-		// o programa está sendo rodado, pra pedir a senha e comparar a senha também
 		
 		if (smsConn == null) {
 			try {
@@ -116,7 +115,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 			if(c == comandoOK)
 			{
 				abreArquivo();
-				adicionaDados();
+				criaSenha();
 			}
 			else if(c == comandoCancel)
 			{
@@ -156,7 +155,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private String MinhaSenha() {
 		
 		abreArquivo();
-		adicionaDados();
+		criaSenha();
 		return null;
 	}
 
@@ -171,13 +170,18 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	
 	void abreArquivo()
 	{
-		try	{dadosSenha = RecordStore.openRecordStore("Dados", true, RecordStore.AUTHMODE_ANY, true);}
+		try	
+		{
+			if(RecordStore.listRecordStores() != null){RecordStore.deleteRecordStore("Senha");}
+
+			dadosSenha = RecordStore.openRecordStore("Senha", true, RecordStore.AUTHMODE_ANY, true);
+		}
 		
 		catch(Exception e){	e.printStackTrace();}
 	}
 	
 	
-	void adicionaDados()
+	void criaSenha()
 	{
 		try
 		{
@@ -221,6 +225,8 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 			streamLeBytes = new ByteArrayInputStream(dados.nextRecord());
 			streamLeDados = new DataInputStream(streamLeBytes);
 			senha = streamLeDados.readUTF();
+			streamLeBytes.close();
+			streamLeDados.close();
 		}
 		catch (Exception e) {e.printStackTrace();}
 		
