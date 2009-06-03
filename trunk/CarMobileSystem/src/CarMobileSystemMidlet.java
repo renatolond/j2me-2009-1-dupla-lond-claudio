@@ -119,7 +119,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 			}
 			else if(c == comandoCancel)
 			{
-				
+				notifyDestroyed();
 			}
 		}
 	}
@@ -156,7 +156,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		
 		abreArquivo();
 		adicionaDados();
-
 		return null;
 	}
 
@@ -199,6 +198,10 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		}
 	}
 
+	boolean verificaSenha()  //Temos que comparar a senha do SMS com a do RecordStore
+	{
+		return true;
+	}
 	
 
 
