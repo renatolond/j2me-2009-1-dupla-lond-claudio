@@ -34,7 +34,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private Form telaSenha;
 	private TextField campoSenha;
 	private RecordStore dadosSenha;
-	private ByteArrayInputStream streamleBytes;
+	private ByteArrayInputStream streamLeBytes;
 	private ByteArrayOutputStream streamEscreveBytes;
 	private DataInputStream streamLeDados;
 	private DataOutputStream streamEscreveDados;
@@ -200,7 +200,18 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 
 	boolean verificaSenha()  //Temos que comparar a senha do SMS com a do RecordStore
 	{
+		String senhaDoSMS = new String(); //Fazendo de conta que tenho a senha
+		
+		
 		return true;
+	}
+	
+	String leSenha()
+	{
+		abreArquivo();
+		//streamLeBytes = new ByteArrayInputStream(dadosSenha.getRecord());
+		//streamLeDados = new DataInputStream();
+		return "blah";
 	}
 	
 
