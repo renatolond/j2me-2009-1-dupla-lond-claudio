@@ -4,6 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+
+import javax.microedition.io.ConnectionNotFoundException;
 import javax.microedition.io.Connector;
 import javax.microedition.io.PushRegistry;
 import javax.microedition.lcdui.Alert;
@@ -39,10 +41,12 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private ByteArrayOutputStream streamEscreveBytes;
 	private DataInputStream streamLeDados;
 	private DataOutputStream streamEscreveDados;
+	private boolean stolen;
 
 	String smsConnection = "sms://:" + "5000";
 
 	public CarMobileSystemMidlet() {
+		stolen = false;
 		display = Display.getDisplay(this);
 		cmdSair = new Command("Sair", Command.CANCEL, 0);
 		content = new Alert("SMS Receive");
@@ -50,15 +54,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		content.addCommand(cmdSair);
 		content.setCommandListener(this);
 		content.setString("Receiving...");
-		try {
-			PushRegistry.registerConnection(smsConnection, "CarMobileSystemMidlet", "*");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		resumeScreen = content;
 		
 		// Iniciando a tela de senha
@@ -67,6 +63,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		comandoOK = new Command("Gravar", Command.OK, 0);
 		telaSenha.addCommand(comandoOK);
 		comandoCancel = new Command("Cancela", Command.OK, 0);
+		campoSenha = new TextField("Campo Senha", "", 10, TextField.ANY);
 		telaSenha.addCommand(comandoCancel);
 		telaSenha.append(campoSenha);
 		telaSenha.setCommandListener(this);
@@ -75,7 +72,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	protected void destroyApp(boolean unconditional)
 			throws MIDletStateChangeException {
 		// TODO Auto-generated method stub
-
 	}
 
 	protected void pauseApp() {
@@ -103,6 +99,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		if (c == cmdSair || c == Alert.DISMISS_COMMAND) {
 			try {
 				destroyApp(false);
+				notifyDestroyed();
 			} catch (MIDletStateChangeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -125,6 +122,10 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	}
 
 	public void run() {
+		if ( stolen )
+		{
+			stolenCell();
+		}
 		while (true) {
 			try {
 				msg = smsConn.receive();
@@ -134,6 +135,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 					{
 						FoiRoubado();
 					}
+					
 					msg = null;
 				}
 			} catch (InterruptedIOException e) {
@@ -147,9 +149,24 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 
 	}
 
-	private void FoiRoubado() {
-		// TODO Botar o PushRegistry() pra timer e tal 
+	private void stolenCell() {
+		// TODO Auto-generated method stub
 		
+	}
+
+	private void FoiRoubado() {
+		// TODO Botar o PushRegistry() pra timer e tal
+		String cn = this.getClass().getName();
+		try {
+			PushRegistry.registerAlarm(cn, 5*60);
+		} catch (ConnectionNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		stolen = true;
 	}
 
 	private String MinhaSenha() {
@@ -232,7 +249,5 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		
 		return 	senha;
 	}
-	
-
 
 }
