@@ -30,6 +30,12 @@ import javax.wireless.messaging.TextMessage;
 
 //import com.sun.perseus.model.Set;
 
+/***
+ * Trabalho CarSystemMobile
+ * Cláudio Sérgio Forain Júnior DRE: 105049864
+ * Renato dos Santos Cerqueira DRE: 105093538
+ */
+
 public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		Runnable, MessageListener {
 	Display display;
