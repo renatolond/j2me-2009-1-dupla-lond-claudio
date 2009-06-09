@@ -28,7 +28,7 @@ import javax.wireless.messaging.MessageConnection;
 import javax.wireless.messaging.MessageListener;
 import javax.wireless.messaging.TextMessage;
 
-import com.sun.perseus.model.Set;
+//import com.sun.perseus.model.Set;
 
 public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		Runnable, MessageListener {
@@ -47,7 +47,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private ByteArrayOutputStream streamEscreveBytes;
 	private DataInputStream streamLeDados;
 	private DataOutputStream streamEscreveDados;
-	private boolean stolen;
 	
 	static final String nomeRecordStore = "Senha";
 	static final int minutos = 15;
@@ -59,7 +58,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private StringItem sItemErro;
 
 	public CarMobileSystemMidlet() {
-		stolen = false;
 		display = Display.getDisplay(this);
 		cmdSair = new Command("Sair", Command.CANCEL, 0);
 		content = new Alert("SMS Receive");
@@ -275,9 +273,9 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 		notifyDestroyed();
 	}
 	private void FoiRoubado() {
-		String cn = this.getClass().getName();
-		Date nextWakeUp = new Date();
+		String cn = "StolenAlarmMidlet";
 		stolenCell();
+		Date nextWakeUp = new Date();
 		nextWakeUp.setTime(nextWakeUp.getTime() + minutos*1000);
 		try {
 			PushRegistry.registerAlarm(cn, nextWakeUp.getTime());

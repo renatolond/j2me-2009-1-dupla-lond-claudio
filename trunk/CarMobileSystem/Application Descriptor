@@ -1,4 +1,4 @@
-MIDlet-2: StolenMidlet,,CarMobileSystemMidlet$StolenMidlet
+MIDlet-2: StolenAlarmMidlet,,StolenAlarmMidlet
 MIDlet-1: CarMobileSystemMidlet,,CarMobileSystemMidlet
 MIDlet-Jar-URL: CarMobileSystem.jar
 MicroEdition-Configuration: CLDC-1.1
@@ -6,5 +6,5 @@ MIDlet-Push-1: sms://:5000,CarMobileSystemMidlet,*
 MIDlet-Version: 1.0.0
 MIDlet-Name: CarMobileSystem MIDlet Suite
 MIDlet-Vendor: MIDlet Suite Vendor
-MicroEdition-Profile: MIDP-2.1
 MIDlet-Permissions: javax.microedition.io.PushRegistry, javax.microedition.io.Connector.sms, javax.wireless.messaging.sms.receive
+MicroEdition-Profile: MIDP-2.0
