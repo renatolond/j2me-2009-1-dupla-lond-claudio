@@ -49,8 +49,8 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	private DataOutputStream streamEscreveDados;
 	
 	static final String nomeRecordStore = "Senha";
-	static final int minutos = 15;
-	static final int numVezes = 5;
+	static final int minutos = 5;
+	static final int numVezes = 60;
 
 	String smsConnection = "sms://:" + "5000";
 	private Form checaSenha;
@@ -185,6 +185,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 							FoiRoubado();
 						}
 						msg = null;
+						notifyDestroyed();
 					}
 				} catch (InterruptedIOException e) {
 					// TODO Auto-generated catch block
@@ -195,62 +196,6 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 				}
 			}
 	}
-	/*
-	public class StolenMidlet extends MIDlet implements Runnable
-	{
-
-		protected void destroyApp(boolean unconditional)
-				throws MIDletStateChangeException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		protected void pauseApp() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		protected void startApp() throws MIDletStateChangeException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void run() {
-			String cn = (new StolenMidlet()).getClass().getName();
-			Date nextWakeUp = new Date();
-			nextWakeUp.setTime(nextWakeUp.getTime() + minutos*1000);
-			try {
-				stolenCell();
-				PushRegistry.registerAlarm(cn, nextWakeUp.getTime());
-			} catch (ConnectionNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		private void stolenCell() {
-			resumeScreen = content;
-			display.setCurrent(content);
-			int vezes = 0;
-			
-			while ( vezes < numVezes )
-			{
-				display.vibrate(1000);
-				display.flashBacklight(1000);
-				content.setString("Celular Roubado!!!");
-				try {
-					Thread.sleep(999);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				vezes++;
-			}
-			notifyDestroyed();
-		}
-	}*/
 
 	private void stolenCell() {
 		resumeScreen = content;
@@ -270,21 +215,23 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 			}
 			vezes++;
 		}
-		notifyDestroyed();
 	}
 	private void FoiRoubado() {
 		String cn = "StolenAlarmMidlet";
 		
 		stolenCell();
-		Date nextWakeUp = new Date();
-		nextWakeUp.setTime(nextWakeUp.getTime() + minutos*1000);
+//		Date nextWakeUp = new Date();
+//		nextWakeUp.setTime(nextWakeUp.getTime() + 60*1000);
 		try {
-			PushRegistry.registerAlarm(cn, nextWakeUp.getTime());
+			PushRegistry.registerAlarm(cn, (new Date()).getTime() + minutos*60*1000);
 		} catch (ConnectionNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Exception e )
+		{
 			e.printStackTrace();
 		}
 	}

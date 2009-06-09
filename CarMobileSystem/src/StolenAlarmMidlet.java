@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
+import java.io.PrintStream;
 import java.util.Date;
 
 import javax.microedition.io.ConnectionNotFoundException;
@@ -25,6 +26,8 @@ import javax.wireless.messaging.MessageConnection;
 import javax.wireless.messaging.MessageListener;
 import javax.wireless.messaging.TextMessage;
 
+import com.sun.cldc.io.ConsoleOutputStream;
+
 
 public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListener, MessageListener {
 	Display display;
@@ -39,8 +42,8 @@ public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListen
 	private DataInputStream streamLeDados;
 	
 	static final String nomeRecordStore = "Senha";
-	static final int minutos = 15;
-	static final int numVezes = 5;
+	static final int minutos = 5;
+	static final int numVezes = 60;
 
 	String smsConnection = "sms://:" + "5000";
 
@@ -67,28 +70,19 @@ public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListen
 
 	protected void startApp() throws MIDletStateChangeException {
 		// TODO Auto-generated method stub
-
+		if ( leSenha() == "" )
+			notifyDestroyed();
+		display.setCurrent(resumeScreen);
+		FoiRoubado();
+		thread = null;
+		notifyDestroyed();
 	}
 
 	public void run() {
-		while (true) {
-			try {
-				msg = smsConn.receive();
-				if (msg != null) {
-					String myMsg = ((TextMessage) msg).getPayloadText();
-					if (verificaSenha(myMsg)) {
-						FoiRoubado();
-					}
-					msg = null;
-				}
-			} catch (InterruptedIOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+			display.setCurrent(resumeScreen);
+			FoiRoubado();
+			thread = null;
+			notifyDestroyed();
 	}
 	
 	private void abreArquivo() {
@@ -144,10 +138,10 @@ public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListen
 	private void FoiRoubado() {
 		String cn = this.getClass().getName();
 		stolenCell();
-		Date nextWakeUp = new Date();
-		nextWakeUp.setTime(nextWakeUp.getTime() + minutos*1000);
+//		Date nextWakeUp = new Date();
+//		nextWakeUp.setTime(nextWakeUp.getTime() + minutos*60*1000);
 		try {
-			PushRegistry.registerAlarm(cn, nextWakeUp.getTime());
+			PushRegistry.registerAlarm(cn, (new Date()).getTime() + minutos*60*1000);
 		} catch (ConnectionNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -159,6 +153,14 @@ public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListen
 	private void stolenCell() {
 		resumeScreen = content;
 		display.setCurrent(content);
+		ConsoleOutputStream c = new ConsoleOutputStream();
+		String s = "Stolen!!";
+		try {
+			c.write( s.getBytes() );
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		int vezes = 0;
 		
 		while ( vezes < numVezes )
@@ -174,7 +176,6 @@ public class StolenAlarmMidlet extends MIDlet implements Runnable, CommandListen
 			}
 			vezes++;
 		}
-		notifyDestroyed();
 	}
 
 	public void commandAction(Command c, Displayable d) {
