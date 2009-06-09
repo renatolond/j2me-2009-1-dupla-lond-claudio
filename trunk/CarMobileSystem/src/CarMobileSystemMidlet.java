@@ -274,6 +274,7 @@ public class CarMobileSystemMidlet extends MIDlet implements CommandListener,
 	}
 	private void FoiRoubado() {
 		String cn = "StolenAlarmMidlet";
+		
 		stolenCell();
 		Date nextWakeUp = new Date();
 		nextWakeUp.setTime(nextWakeUp.getTime() + minutos*1000);
