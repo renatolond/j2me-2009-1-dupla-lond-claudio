@@ -273,7 +273,6 @@ public class HCanvas extends GameCanvas implements Runnable
 		carSprite[1].setPosition(62, 0);
 		carYSpeed[1] = rand.nextInt(10) + 1;
 		carPlayerSprite.setPosition(93, celHeight);
-		// carYSpeed[2] = -2;
 		carSprite[2].setPosition(128, celHeight);
 		carYSpeed[2] = -rand.nextInt(10) - 1;
 	}
