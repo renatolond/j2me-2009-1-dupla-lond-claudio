@@ -12,7 +12,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private Random rand;
 	private Image background;
 	private Image chickenHead;
-	private static final int galinhas = 1;
+	private static final int galinhas = 10;
 	private static final int carros = 3;
 	private Sprite[] chickenSprite = new Sprite[galinhas];
 	private int[] chickenXSpeed = new int[galinhas];
@@ -22,11 +22,16 @@ public class HCanvas extends GameCanvas implements Runnable
 	private boolean gameOver;
 	private int numLives;
 	private int score;
+	private int celHeight;
+	private int celWidth;
 
 	public HCanvas(Display d)
 	{
 		super(true);
 		display = d;
+		
+		celHeight = getHeight();
+		celWidth = getWidth();
 
 		// Set the frame rate (30 fps)
 		frameDelay = 33;
@@ -54,8 +59,16 @@ public class HCanvas extends GameCanvas implements Runnable
 			background = Image.createImage("/Highway.png");
 			chickenHead = Image.createImage("/ChickenHead.png");
 			
-			chickenSprite[0] = new Sprite(Image.createImage("/Chicken.png"),
+			for ( int i = 0 ; i < (galinhas/2) + (galinhas%2) ; i++ )
+			{
+				chickenSprite[i] = new Sprite(Image.createImage("/Chicken.png"),
 					22, 22);
+			}
+			for ( int i = (galinhas/2) + (galinhas%2) ; i < galinhas ; i++ )
+			{
+				chickenSprite[i] = new Sprite(chickenSprite[0]);
+				chickenSprite[i].setTransform( Sprite.TRANS_MIRROR );
+			}
 			carSprite[0] = new Sprite(Image.createImage("/Car1.png"));
 			carSprite[1] = new Sprite(Image.createImage("/Car2.png"));
 			carPlayerSprite = new Sprite(Image.createImage("/Car3.png"));
@@ -105,7 +118,7 @@ public class HCanvas extends GameCanvas implements Runnable
 			if ((keyState & FIRE_PRESSED) != 0)
 			{
 				// Start a new game
-				chickenSprite[0].setPosition(2, 77);
+				resetPositions();
 				gameOver = false;
 				score = 0;
 				numLives = 3;
@@ -160,7 +173,8 @@ public class HCanvas extends GameCanvas implements Runnable
 		// Update the enemy chicken sprites
 		for (int i = 0 ; i < galinhas ; i++ )
 		{
-			chickenSprite[i].move(3, 0);
+			chickenSprite[i].move(chickenXSpeed[i], 0);
+			chickenSprite[i].nextFrame();
 			checkBounds(chickenSprite[i], true);
 			
 			if ( carPlayerSprite.collidesWith(chickenSprite[i], true))
@@ -211,7 +225,16 @@ public class HCanvas extends GameCanvas implements Runnable
 			{
 				if ( carSprite[i].collidesWith(chickenSprite[j], true))
 				{
-					chickenSprite[j].setPosition(2, 77);
+					if ( chickenXSpeed[j] > 0 )
+					{
+						chickenSprite[j].setPosition(2, rand.nextInt(celHeight));
+						chickenXSpeed[j] = rand.nextInt(3)+1;
+					}
+					else
+					{
+						chickenSprite[j].setPosition(celWidth-2, rand.nextInt(celHeight));
+						chickenXSpeed[j] = -rand.nextInt(3)-1;
+					}
 				}
 			}
 		}
@@ -219,16 +242,25 @@ public class HCanvas extends GameCanvas implements Runnable
 
 	private void resetPositions()
 	{
-		chickenSprite[0].setPosition(2, 77);
+		for ( int i = 0 ; i < (galinhas/2) + (galinhas%2) ; i++ )
+		{
+			chickenSprite[i].setPosition(2, rand.nextInt(celHeight));
+			chickenXSpeed[i] = rand.nextInt(3)+1;
+		}
+		for ( int i = (galinhas/2) + (galinhas%2) ; i < galinhas ; i++ )
+		{
+			chickenSprite[i].setPosition(celWidth-2, rand.nextInt(celHeight));
+			chickenXSpeed[i] = -rand.nextInt(3)-1;
+		}
 
 		carSprite[0].setPosition(27, 0);
-		carYSpeed[0] = 3;
+		carYSpeed[0] = rand.nextInt(10)+1;
 		carSprite[1].setPosition(62, 0);
-		carYSpeed[1] = 1;
+		carYSpeed[1] = rand.nextInt(10)+1;
 		carPlayerSprite.setPosition(93, 67);
 		// carYSpeed[2] = -2;
-		carSprite[2].setPosition(128, 64);
-		carYSpeed[2] = -5;
+		carSprite[2].setPosition(128, celHeight);
+		carYSpeed[2] = -rand.nextInt(10)-1;
 	}
 
 	private void draw(Graphics g)
@@ -238,11 +270,14 @@ public class HCanvas extends GameCanvas implements Runnable
 
 		// Draw the number of remaining lives
 		for (int i = 0; i < numLives; i++)
-			g.drawImage(chickenHead, 180 - ((i + 1) * 8), 170, Graphics.TOP
+			g.drawImage(chickenHead, 180 - ((i + 1) * 8), celHeight - 15, Graphics.TOP
 					| Graphics.LEFT);
 
 		// Draw the chicken sprite
-		chickenSprite[0].paint(g);
+		for ( int i = 0 ; i < galinhas ; i++ )
+		{
+			chickenSprite[i].paint(g);
+		}
 
 		// Draw the car sprites
 		for (int i = 0; i < carros; i++)
