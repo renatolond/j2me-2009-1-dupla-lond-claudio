@@ -25,6 +25,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private int[] chickenXSpeed = new int[galinhas];
 	private Sprite[] carSprite = new Sprite[carros];
 	private Sprite carPlayerSprite;
+	private Sprite pista, pistat;
 	private Sprite blood;
 	private int[] carYSpeed = new int[carros];
 	private SpriteQueue bloodQ;
@@ -67,6 +68,9 @@ public class HCanvas extends GameCanvas implements Runnable
 		try
 		{
 			background = Image.createImage("/Highway.png");
+			pista = new Sprite(background);
+			pistat = new Sprite(pista);
+			pistat.move(0, pistat.getHeight());
 			chickenHead = Image.createImage("/ChickenHead.png");
 
 			for (int i = 0; i < (galinhas / 2) + (galinhas % 2); i++)
@@ -122,6 +126,8 @@ public class HCanvas extends GameCanvas implements Runnable
 
 	private void update()
 	{
+		int mY;
+		mY = 0;
 		// Check to see whether the game is being restarted
 		if (gameOver)
 		{
@@ -158,12 +164,24 @@ public class HCanvas extends GameCanvas implements Runnable
 			inputDelay = 0;
 		}
 		if ((keyState & DOWN_PRESSED) == 0)
-			carPlayerSprite.move(0, -2);
+		{
+			mY +=2;
+//			carPlayerSprite.move(0, -2);
+		}
 		if ((keyState & UP_PRESSED) != 0)
-			carPlayerSprite.move(0, -2);
+		{
+			mY += 2;
+//			carPlayerSprite.move(0, -2);
+		}
 		if ( checkBounds(carPlayerSprite, true) )
 			score += 25;
 
+		pista.move(0, mY);
+		pistat.move(0, mY);
+		if ( pistat.getY() > celHeight )
+			pistat.move(0, -pistat.getHeight()*2);
+		if ( pista.getY() > celHeight )
+			pista.move(0, -pista.getHeight()*2);
 		// See whether the chicken made it across
 		// if (chickenSprite.getX() > 154) {
 		// Play a sound for making it safely across
@@ -174,10 +192,20 @@ public class HCanvas extends GameCanvas implements Runnable
 		// score += 25;
 		// }
 
+		for (int i = 0 ; i < bloodQ.size() ; i++ )
+		{
+			bloodQ.at(i).move(0, mY);
+			if ( bloodQ.at(i).getX() > celWidth )
+			{
+				if ( bloodQ.size() > 1 )
+					bloodQ.seta(i, bloodQ.at(0));
+				bloodQ.dequeue();
+			}
+		}
 		// Update the enemy chicken sprites
 		for (int i = 0; i < galinhas; i++)
 		{
-			chickenSprite[i].move(chickenXSpeed[i], 0);
+			chickenSprite[i].move(chickenXSpeed[i], mY);
 			chickenSprite[i].nextFrame();
 			checkBounds(chickenSprite[i], true);
 
@@ -274,7 +302,7 @@ public class HCanvas extends GameCanvas implements Runnable
 		carYSpeed[0] = rand.nextInt(10) + 1;
 		carSprite[1].setPosition(62, 0);
 		carYSpeed[1] = rand.nextInt(10) + 1;
-		carPlayerSprite.setPosition(93, celHeight);
+		carPlayerSprite.setPosition(93, celHeight/2);
 		carSprite[2].setPosition(128, celHeight);
 		carYSpeed[2] = -rand.nextInt(10) - 1;
 	}
@@ -282,8 +310,11 @@ public class HCanvas extends GameCanvas implements Runnable
 	private void draw(Graphics g)
 	{
 		// Draw the highway background
-		g.drawImage(background, 0, 0, Graphics.TOP | Graphics.LEFT);
-
+//		g.drawImage(background, 0, 0, Graphics.TOP | Graphics.LEFT);
+		pista.paint(g);
+		pistat.paint(g);
+		//pistat.move(0, pista.getHeight());
+		
 		for (int i = 0 ; i < bloodQ.size() ; i++ )
 		{
 			bloodQ.at(i).paint(g);
@@ -291,7 +322,7 @@ public class HCanvas extends GameCanvas implements Runnable
 
 		// Draw the number of remaining lives
 		for (int i = 0; i < numLives; i++)
-			g.drawImage(chickenHead, 180 - ((i + 1) * 8), celHeight - 15,
+			g.drawImage(chickenHead, celWidth - ((i + 1) * 8), celHeight - 15,
 					Graphics.TOP | Graphics.LEFT);
 
 		// Draw the chicken sprite
