@@ -84,6 +84,13 @@ public class SpriteQueue
         return theArray[ front ];
     }
     
+    public void seta(int i, Sprite s)
+    {
+    	if ( i < 0 || i > theArray.length )
+    		return;
+    	theArray[i] = s;
+    }
+    
     public Sprite at(int i)
     {
     	if ( i < 0 )
