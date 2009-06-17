@@ -159,6 +159,8 @@ public class HCanvas extends GameCanvas implements Runnable
 		}
 		if ((keyState & DOWN_PRESSED) == 0)
 			carPlayerSprite.move(0, -2);
+		if ((keyState & UP_PRESSED) != 0)
+			carPlayerSprite.move(0, -2);
 		if ( checkBounds(carPlayerSprite, true) )
 			score += 25;
 
