@@ -17,6 +17,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	private Display display;
 	private boolean sleeping;
 	private boolean gameOver;
+	private int speed;
 	private Random rand;
 	// private Sprite cars;
 	private Sprite redCar, blueCar, greenCar;
@@ -50,6 +51,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		gameOver = false;
 		try
 		{
+			speed = 2;
 
 			// cars = new Sprite(
 			// Image.createImage("/carros.png"), 192/3, 256/4);
@@ -115,21 +117,40 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		if (++inputDelay > 3)
 		{
 			int keyState = getKeyStates();
-			if ((keyState & RIGHT_PRESSED) != 0)
+			if ((keyState & RIGHT_PRESSED) != 0 && (keyState & LEFT_PRESSED) == 0)
 			{
 				redCar.nextFrame();
 				redCarAng = turnRight(redCar, redCarAng);
 				inputDelay = 0;
 			}
-			else if ( (keyState & LEFT_PRESSED) != 0 )
+			else if ( (keyState & LEFT_PRESSED) != 0 && (keyState & RIGHT_PRESSED) == 0)
 			{
 				redCar.prevFrame();
 				redCarAng = turnLeft(redCar, redCarAng);
 				inputDelay = 0;
 			}
+			else if ( (keyState & UP_PRESSED ) != 0 )
+			{
+				speed++;
+				inputDelay = 0;
+			}
+			else if ( (keyState & DOWN_PRESSED ) != 0 )
+			{
+				speed--;
+				inputDelay = 0;
+			}
 			greenCar.nextFrame();
 			blueCar.nextFrame();
 		}
+		int dx, dy;
+		dx = dy = 1;
+		int ang = redCarAng;
+		ang += redCar.getFrame() * 45/2;
+		double dsin = Math.sin(ang*Math.PI/180)*speed;
+		double dcos = Math.cos(ang*Math.PI/180)*speed;
+		dx = (int)dsin;
+		dy = -(int)dcos;
+		redCar.move(dx, dy);
 		// TODO Auto-generated method stub
 
 	}
