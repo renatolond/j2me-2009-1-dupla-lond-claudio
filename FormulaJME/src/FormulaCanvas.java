@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Random;
 
 import javax.microedition.lcdui.Display;
@@ -23,13 +24,16 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	// private Sprite cars;
 	private Sprite redCar, blueCar, greenCar;
 	private Image[] pista = new Image[5*5];
+	private static final int size = 7;
 	private int redCarAng, blueCarAng, greenCarAng;
 	int playerX, playerY;
-	private int[] map = { 17, 18, 17, 18, 17,
-							13, 24, 24, 24, 24,
-							14, 24, 18, 24, 24,
-							13, 24, 24, 24, 24,
-							14, 24, 24, 24, 24};
+	private int[] map = {   24, 24, 24, 24, 24, 24, 24,
+							24,  0, 18, 18, 18,  1, 24,
+							24, 17, 23, 20, 21, 17, 24,
+							24, 17, 23, 24, 21, 17, 24,
+							24, 17, 23, 22, 21, 17, 24,
+							24,  5, 18, 18, 18,  6, 24,
+							24, 24, 24, 24, 24, 24, 24};
 	private int t;
 
 	protected FormulaCanvas(Display d)
@@ -91,6 +95,10 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		playerX = celWidth / 2 - redCar.getWidth()/2;
 		playerY = celHeight / 2 - redCar.getHeight()/2;
 		redCar.setPosition(playerX, playerY);
+		greenCar.setPosition(playerX-redCar.getWidth(), playerY);
+		blueCar.setPosition(playerX+redCar.getWidth(), playerY);
+		playerX = 2*tileSize;
+		playerY = 4*tileSize;
 		redCarAng = 0;
 
 		sleeping = false;
@@ -127,23 +135,41 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		amountX = (celWidth / tileSize) + 2;
 		amountY = (celHeight / tileSize) + 2;
 		
-		mapX = playerX / tileSize; 
-		mapY = playerY / tileSize;
+		mapX = playerX / tileSize -1 ; 
+		mapY = playerY / tileSize -1 ;
+		
+		int sobraX, sobraY;
+		
+		sobraX = playerX % tileSize;
+		sobraY = playerY % tileSize;
+		
+//		System.out.println("Map: "+mapX+","+mapY);
+//		System.out.println("Player: "+playerX+","+playerY);
+//		System.out.println("Sobra: "+sobraX+","+sobraY);
 		
 		for (int i = 0; i < amountX; i++)
 		{
 			for (int j = 0; j < amountY; j++)
 			{
 				int p;
-				p = (mapX+i)+(mapY+j)*5;
-				g.drawImage(pista[map[p]], i*tileSize, j*tileSize, Graphics.LEFT|Graphics.TOP);
+				p = (mapX+i)+(mapY+j)*size;
+				if ( p >= (size*size) ) continue;
+				try
+				{
+				g.drawImage(pista[map[p]], i*tileSize - sobraX, j*tileSize - sobraY, Graphics.LEFT|Graphics.TOP);
+				}
+				catch (Exception e)
+				{
+					System.out.println(p);
+					e.printStackTrace();
+				}
 			}
 		}
 		//g.setColor(0xFF, 0xFF, 0xFF);
 		//g.fillRect(0, 0, celHeight, celWidth);
 		redCar.paint(g);
-		// greenCar.paint(g);
-		// blueCar.paint(g);
+		greenCar.paint(g);
+		blueCar.paint(g);
 		flushGraphics();
 	}
 
@@ -191,8 +217,8 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 				speed-=2;
 				inputDelay = 0;
 			}
-			greenCar.nextFrame();
-			blueCar.nextFrame();
+			//greenCar.nextFrame();
+			//blueCar.nextFrame();
 		}
 		int dx, dy;
 		dx = dy = 1;
@@ -203,7 +229,15 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		dx = (int)dsin;
 		dy = -(int)dcos;
 		playerX += dx;
+		if ( playerX < tileSize )
+			playerX = tileSize;
+		if ( playerX > (size*tileSize-1)-tileSize/2 )
+			playerX = (size*tileSize-1)-tileSize/2;
 		playerY += dy;
+		if ( playerY < tileSize )
+			playerY = tileSize;
+		if ( playerY > (size*tileSize-1)-tileSize/2 )
+			playerY = (size*tileSize-1)-tileSize/2;
 		//redCar.move(dx, dy);
 		// TODO Auto-generated method stub
 
