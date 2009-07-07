@@ -4,10 +4,29 @@ import javax.microedition.lcdui.game.Sprite;
 
 public class Entity
 {
+	public static double aTan2(double y, double x) {
+		double coeff_1 = Math.PI / 4d;
+		double coeff_2 = 3d * coeff_1;
+		double abs_y = Math.abs(y);
+		double angle;
+		if (x >= 0d) {
+			double r = (x - abs_y) / (x + abs_y);
+			angle = coeff_1 - coeff_1 * r;
+		} else {
+			double r = (x + abs_y) / (abs_y - x);
+			angle = coeff_2 - coeff_1 * r;
+		}
+		return y < 0d ? -angle : angle;
+	}
+
+
 	protected static final int tileHeight = (750/10);
 	protected static final int tileWidth = (675/9);
 	protected static final int size = 14;
+	protected static Player player;
+	public static Ponto[] waypoint = new Ponto[4];
 	public Sprite car;
+	int speed;
 	int carAng;
 	
 	public void paint(Graphics g)

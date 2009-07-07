@@ -42,7 +42,6 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 							80, 80, 30, 31, 53, 53, 53, 53, 53, 53, 32, 33, 80, 80,
 							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
 							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
-	private Ponto[] waypoint = new Ponto[4];
 	private int t;
 
 	protected FormulaCanvas(Display d)
@@ -72,11 +71,12 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 
 		// Initialize the game variables
 		gameOver = false;
-		waypoint[0] = new Ponto( 3*tileWidth,  3*tileHeight);
-		waypoint[1] = new Ponto(11*tileWidth,  3*tileHeight);
-		waypoint[2] = new Ponto(11*tileWidth, 11*tileHeight);
-		waypoint[3] = new Ponto( 3*tileWidth, 11*tileHeight);
+		Entity.waypoint[0] = new Ponto( 3*tileWidth,  3*tileHeight);
+		Entity.waypoint[1] = new Ponto(11*tileWidth,  3*tileHeight);
+		Entity.waypoint[2] = new Ponto(11*tileWidth, 11*tileHeight);
+		Entity.waypoint[3] = new Ponto( 3*tileWidth, 11*tileHeight);
 		player = new Player();
+		Entity.player = player;
 		try
 		{
 			speed = 0;
@@ -170,6 +170,9 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 //		System.out.println("Player: "+playerX+","+playerY);
 //		System.out.println("Sobra: "+sobraX+","+sobraY);
 		
+		g.setColor(0xFF, 0xFF, 0xFF);
+		g.fillRect(0, 0, celHeight, celWidth);
+		
 		for (int i = 0; i < amountX; i++)
 		{
 			for (int j = 0; j < amountY; j++)
@@ -188,8 +191,6 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 				}
 			}
 		}
-		//g.setColor(0xFF, 0xFF, 0xFF);
-		//g.fillRect(0, 0, celHeight, celWidth);
 		for ( int i = 0 ; i < maxEnemies ; i++ )
 			enemies[i].paint(g);
 		player.paint(g);
@@ -217,9 +218,6 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			{
 				player.speed-=2;
 			}
-			
-			enemies[0].update();
-			enemies[1].update();
 			inputDelay = 0;
 		}
 		
@@ -231,10 +229,8 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		
 		for ( int i = 0 ; i < maxEnemies ; i++ )
 			enemies[i].move(-dx, -dy);
-		//blueCar.move(-dx, -dy);
-		//greenCar.move(-dx, -dy);
-		//redCar.move(dx, dy);
-		// TODO Auto-generated method stub
-
+		
+		for ( int i = 0 ; i < maxEnemies ; i++ )
+			enemies[i].update();
 	}
 }

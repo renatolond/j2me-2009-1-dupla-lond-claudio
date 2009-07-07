@@ -5,7 +5,6 @@ public class Player extends Entity
 {
 	
 	int x, y;
-	int speed;
 	int dx, dy;
 	
 	Player()
@@ -28,23 +27,24 @@ public class Player extends Entity
 		x += dx;
 		if ( x <= tileWidth )
 		{
-			dx = 0;
+			dx = dx + (tileWidth - x);
 			x = tileWidth;
 		}
 		if ( x >= (size*tileWidth-1)-tileWidth/2 )
 		{
-			dx = 0;
+			dx = dx - (x - ((size*tileWidth-1)-tileWidth/2));
 			x = (size*tileWidth-1)-tileWidth/2;
 		}
+		
 		y += dy;
 		if ( y <= tileHeight )
 		{
+			dy = dy + (tileHeight - y);
 			y = tileHeight;
-			dy = 0;
 		}
 		if ( y >= (size*tileHeight-1)-tileHeight/2 )
 		{
-			dy = 0;
+			dy = dy - (y - ((size*tileHeight-1)-tileHeight/2));
 			y = (size*tileHeight-1)-tileHeight/2;
 		}
 		
