@@ -10,8 +10,9 @@ import javax.microedition.lcdui.game.Sprite;
 
 public class FormulaCanvas extends GameCanvas implements Runnable
 {
-
-	private static final int tileSize = (750/5);
+	private static final int tileHeight = (750/10);
+	private static final int tileWidth = (675/9);
+	private static final int size = 14;
 	private int inputDelay;
 	private int frameDelay;
 	private int celWidth;
@@ -23,17 +24,25 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	private Random rand;
 	// private Sprite cars;
 	private Sprite redCar, blueCar, greenCar;
-	private Image[] pista = new Image[5*5];
-	private static final int size = 7;
-	private int redCarAng, blueCarAng, greenCarAng;
-	int playerX, playerY;
-	private int[] map = {   24, 24, 24, 24, 24, 24, 24,
-							24,  0, 18, 18, 18,  1, 24,
-							24, 17, 23, 20, 21, 17, 24,
-							24, 17, 23, 24, 21, 17, 24,
-							24, 17, 23, 22, 21, 17, 24,
-							24,  5, 18, 18, 18,  6, 24,
-							24, 24, 24, 24, 24, 24, 24};
+	private Image[] pista = new Image[10*9];
+	private Player player;
+	int maxEnemies = 2;
+	Enemy enemies[] = new Enemy[maxEnemies]; 
+	private int[] map = {   80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+							80, 80,  0,  1, 52, 52, 52, 52, 52, 52,  2,  3, 80, 80,
+							80, 80, 10, 11, 53, 53, 53, 53, 53, 53, 12, 13, 80, 80,
+							80, 80, 50, 51, 60, 61, 60, 61, 60, 61, 50, 51, 80, 80,
+							80, 80, 50, 51, 70, 71, 70, 71, 70, 71, 50, 51, 80, 80,
+							80, 80, 50, 51, 23, 23, 80, 80, 21, 21, 50, 51, 80, 80,
+							80, 80, 50, 51, 23, 23, 80, 80, 21, 21, 50, 51, 80, 80,
+							80, 80, 50, 51, 64, 65, 64, 65, 64, 65, 50, 51, 80, 80,
+							80, 80, 50, 51, 74, 75, 74, 75, 74, 75, 50, 51, 80, 80,
+							80, 80, 20, 21, 52, 52, 52, 52, 52, 52, 22, 23, 80, 80,
+							80, 80, 30, 31, 53, 53, 53, 53, 53, 53, 32, 33, 80, 80,
+							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
+							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
+	private Ponto[] waypoint = new Ponto[4];
 	private int t;
 
 	protected FormulaCanvas(Display d)
@@ -54,6 +63,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 
 	public void start()
 	{
+		
 		// Set the canvas as the current screen
 		display.setCurrent(this);
 
@@ -62,6 +72,11 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 
 		// Initialize the game variables
 		gameOver = false;
+		waypoint[0] = new Ponto( 3*tileWidth,  3*tileHeight);
+		waypoint[1] = new Ponto(11*tileWidth,  3*tileHeight);
+		waypoint[2] = new Ponto(11*tileWidth, 11*tileHeight);
+		waypoint[3] = new Ponto( 3*tileWidth, 11*tileHeight);
+		player = new Player();
 		try
 		{
 			speed = 0;
@@ -77,13 +92,13 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			greenCar = new Sprite(Image.createImage(cars, 0, 2 * 192 / 3, cars
 					.getWidth(), cars.getHeight() / 3, 0), 192 / 3, 256 / 4);
 			
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 10; i++)
 			{
-				for (int j = 0; j < 5; j++)
+				for (int j = 0; j < 9; j++)
 				{
-					int s = 750 / 5;
-					pista[i+j*5] = Image.createImage(Image.createImage("/pista.png"), i * s, j
-							* s, 750 / 5, 750 / 5, Sprite.TRANS_NONE);
+					int sh = 675/9; int sw = 750 / 10;
+					pista[i+j*10] = Image.createImage(Image.createImage("/pista.png"), i * sw, j
+							* sh, sw, sh, Sprite.TRANS_NONE);
 				}
 			}
 //			t = 0;
@@ -92,14 +107,22 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		playerX = celWidth / 2 - redCar.getWidth()/2;
-		playerY = celHeight / 2 - redCar.getHeight()/2;
-		redCar.setPosition(playerX, playerY);
-		greenCar.setPosition(playerX-redCar.getWidth(), playerY);
-		blueCar.setPosition(playerX+redCar.getWidth(), playerY);
-		playerX = 2*tileSize;
-		playerY = 4*tileSize;
-		redCarAng = 0;
+		player.x = celWidth / 2 - redCar.getWidth()/2;
+		player.y = celHeight / 2 - redCar.getHeight()/2;
+		
+		redCar.setPosition(player.x, player.y);
+		
+		greenCar.setPosition(player.x, player.y);
+		blueCar.setPosition(player.x, player.y);
+		player.x = 4*tileWidth - celWidth/2 - tileWidth/2 + tileWidth/10;
+		greenCar.move(redCar.getWidth() - redCar.getWidth()/10,0);
+		blueCar.move(0, redCar.getHeight() + redCar.getHeight()/2);
+
+		enemies[0] = new Enemy(greenCar);
+		enemies[1] = new Enemy(blueCar);
+		
+		player.y = 8*tileHeight;
+		player.setSprite(redCar);
 
 		sleeping = false;
 		Thread t = new Thread(this);
@@ -132,16 +155,16 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	private void draw(Graphics g)
 	{
 		int amountX, amountY, mapX, mapY;
-		amountX = (celWidth / tileSize) + 2;
-		amountY = (celHeight / tileSize) + 2;
+		amountX = (celWidth / tileWidth) + 2;
+		amountY = (celHeight / tileHeight) + 2;
 		
-		mapX = playerX / tileSize -1 ; 
-		mapY = playerY / tileSize -1 ;
+		mapX = player.x / tileWidth -1 ; 
+		mapY = player.y / tileHeight -1 ;
 		
 		int sobraX, sobraY;
 		
-		sobraX = playerX % tileSize;
-		sobraY = playerY % tileSize;
+		sobraX = player.x % tileWidth;
+		sobraY = player.y % tileHeight;
 		
 //		System.out.println("Map: "+mapX+","+mapY);
 //		System.out.println("Player: "+playerX+","+playerY);
@@ -156,7 +179,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 				if ( p >= (size*size) ) continue;
 				try
 				{
-				g.drawImage(pista[map[p]], i*tileSize - sobraX, j*tileSize - sobraY, Graphics.LEFT|Graphics.TOP);
+				g.drawImage(pista[map[p]], i*tileWidth - sobraX, j*tileHeight - sobraY, Graphics.LEFT|Graphics.TOP);
 				}
 				catch (Exception e)
 				{
@@ -167,9 +190,9 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		}
 		//g.setColor(0xFF, 0xFF, 0xFF);
 		//g.fillRect(0, 0, celHeight, celWidth);
-		redCar.paint(g);
-		greenCar.paint(g);
-		blueCar.paint(g);
+		for ( int i = 0 ; i < maxEnemies ; i++ )
+			enemies[i].paint(g);
+		player.paint(g);
 		flushGraphics();
 	}
 
@@ -180,135 +203,38 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			int keyState = getKeyStates();
 			if ((keyState & RIGHT_PRESSED) != 0 && (keyState & LEFT_PRESSED) == 0)
 			{
-				int rx, ry;
-				rx = redCar.getX();
-				ry = redCar.getY();
-				
-				redCar.nextFrame();
-				redCarAng = turnRight(redCar, redCarAng);
-				
-				playerX += redCar.getX() - rx;
-				playerY += redCar.getY() - ry;
-				redCar.setPosition(rx, ry);
-
-				inputDelay = 0;
+				player.right();
 			}
 			else if ( (keyState & LEFT_PRESSED) != 0 && (keyState & RIGHT_PRESSED) == 0)
 			{
-				int rx, ry;
-				rx = redCar.getX();
-				ry = redCar.getY();
-				redCar.prevFrame();
-				redCarAng = turnLeft(redCar, redCarAng);
-				
-				playerX += redCar.getX() - rx;
-				playerY += redCar.getY() - ry;
-				redCar.setPosition(rx, ry);
-
-				inputDelay = 0;
+				player.left();
 			}
 			else if ( (keyState & UP_PRESSED ) != 0 )
 			{
-				speed+=2;
-				inputDelay = 0;
+				player.speed+=2;
 			}
 			else if ( (keyState & DOWN_PRESSED ) != 0 )
 			{
-				speed-=2;
-				inputDelay = 0;
+				player.speed-=2;
 			}
-			//greenCar.nextFrame();
-			//blueCar.nextFrame();
+			
+			enemies[0].update();
+			enemies[1].update();
+			inputDelay = 0;
 		}
+		
 		int dx, dy;
-		dx = dy = 1;
-		int ang = redCarAng;
-		ang += redCar.getFrame() * 45/2;
-		double dsin = Math.sin(ang*Math.PI/180)*speed;
-		double dcos = Math.cos(ang*Math.PI/180)*speed;
-		dx = (int)dsin;
-		dy = -(int)dcos;
-		playerX += dx;
-		if ( playerX < tileSize )
-			playerX = tileSize;
-		if ( playerX > (size*tileSize-1)-tileSize/2 )
-			playerX = (size*tileSize-1)-tileSize/2;
-		playerY += dy;
-		if ( playerY < tileSize )
-			playerY = tileSize;
-		if ( playerY > (size*tileSize-1)-tileSize/2 )
-			playerY = (size*tileSize-1)-tileSize/2;
+		
+		player.update();
+		dx = player.dx;
+		dy = player.dy;
+		
+		for ( int i = 0 ; i < maxEnemies ; i++ )
+			enemies[i].move(-dx, -dy);
+		//blueCar.move(-dx, -dy);
+		//greenCar.move(-dx, -dy);
 		//redCar.move(dx, dy);
 		// TODO Auto-generated method stub
 
 	}
-
-	private int turnLeft(Sprite sprite, int spriteAng)
-	{
-		if (sprite.getFrame() == 3)
-		{
-			if (spriteAng == 0)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT270);
-				spriteAng = 270;
-				sprite.move(0, sprite.getWidth());
-			}
-			else if (spriteAng == 90)
-			{
-				sprite.setTransform(Sprite.TRANS_NONE);
-				spriteAng = 0;
-				sprite.move(-sprite.getHeight(), 0);
-			}
-			else if (spriteAng == 180)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT90);
-				spriteAng = 90;
-				sprite.move(0, -sprite.getWidth());
-			}
-			else if (spriteAng == 270)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT180);
-				spriteAng = 180;
-				sprite.move(sprite.getHeight(), 0);
-			}
-		}
-		
-		return spriteAng;
-	}
-
-	private int turnRight(Sprite sprite, int spriteAng)
-	{
-		if (sprite.getFrame() == 0)
-		{
-			if (spriteAng == 0)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT90);
-				spriteAng = 90;
-				sprite.move(sprite.getHeight(), 0);
-			}
-			else if (spriteAng == 90)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT180);
-				spriteAng = 180;
-				sprite.move(0, sprite.getWidth());
-			}
-			else if (spriteAng == 180)
-			{
-				sprite.setTransform(Sprite.TRANS_ROT270);
-				spriteAng = 270;
-				sprite.move(-sprite.getHeight(), 0);
-			}
-			else if (spriteAng == 270)
-			{
-				sprite.setTransform(Sprite.TRANS_NONE);
-				spriteAng = 0;
-				sprite.move(0, -sprite.getWidth());
-			}
-		}
-		
-		return spriteAng;
-	}
-	
-	
-
 }
