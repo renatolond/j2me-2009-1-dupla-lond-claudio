@@ -5,18 +5,26 @@ import javax.microedition.lcdui.game.Sprite;
 public class Entity
 {
 	public static double aTan2(double y, double x) {
-		double coeff_1 = Math.PI / 4d;
-		double coeff_2 = 3d * coeff_1;
-		double abs_y = Math.abs(y);
-		double angle;
-		if (x >= 0d) {
-			double r = (x - abs_y) / (x + abs_y);
-			angle = coeff_1 - coeff_1 * r;
-		} else {
-			double r = (x + abs_y) / (abs_y - x);
-			angle = coeff_2 - coeff_1 * r;
+		double teta;
+		if ( Math.abs(y) <= 6 )
+		{
+			if ( x < 0 )
+				teta = -Math.PI/2;
+			else
+				teta = Math.PI/2;
 		}
-		return y < 0d ? -angle : angle;
+		else
+		{
+			double d = x/y;
+				teta = d/(1 + 0.28*d*d);
+			if ( y < 0 )
+				teta = teta+Math.PI;
+		}
+		
+		if ( teta < 0 )
+			teta += Math.PI*2;
+		
+		return teta;
 	}
 
 
@@ -26,8 +34,8 @@ public class Entity
 	protected static Player player;
 	public static Ponto[] waypoint = new Ponto[4];
 	public Sprite car;
-	int speed;
-	int carAng;
+	protected int speed;
+	protected int carAng;
 	
 	public void paint(Graphics g)
 	{
@@ -38,28 +46,28 @@ public class Entity
 	{
 		if (car.getFrame() == 3)
 		{
-			if (carAng == 0)
+			if (carAng == 180)
 			{
 				car.setTransform(Sprite.TRANS_ROT270);
-				carAng = 270;
-				car.move(0, car.getWidth());
-			}
-			else if (carAng == 90)
-			{
-				car.setTransform(Sprite.TRANS_NONE);
-				carAng = 0;
-				car.move(-car.getHeight(), 0);
-			}
-			else if (carAng == 180)
-			{
-				car.setTransform(Sprite.TRANS_ROT90);
 				carAng = 90;
-				car.move(0, -car.getWidth());
+				car.move(0, car.getWidth());
 			}
 			else if (carAng == 270)
 			{
-				car.setTransform(Sprite.TRANS_ROT180);
+				car.setTransform(Sprite.TRANS_NONE);
 				carAng = 180;
+				car.move(-car.getHeight(), 0);
+			}
+			else if (carAng == 0)
+			{
+				car.setTransform(Sprite.TRANS_ROT90);
+				carAng = 270;
+				car.move(0, -car.getWidth());
+			}
+			else if (carAng == 90)
+			{
+				car.setTransform(Sprite.TRANS_ROT180);
+				carAng = 0;
 				car.move(car.getHeight(), 0);
 			}
 		}
@@ -70,28 +78,28 @@ public class Entity
 	{
 		if (car.getFrame() == 0)
 		{
-			if (carAng == 0)
+			if (carAng == 180)
 			{
 				car.setTransform(Sprite.TRANS_ROT90);
-				carAng = 90;
-				car.move(car.getHeight(), 0);
-			}
-			else if (carAng == 90)
-			{
-				car.setTransform(Sprite.TRANS_ROT180);
-				carAng = 180;
-				car.move(0, car.getWidth());
-			}
-			else if (carAng == 180)
-			{
-				car.setTransform(Sprite.TRANS_ROT270);
 				carAng = 270;
-				car.move(-car.getHeight(), 0);
+				car.move(car.getHeight(), 0);
 			}
 			else if (carAng == 270)
 			{
-				car.setTransform(Sprite.TRANS_NONE);
+				car.setTransform(Sprite.TRANS_ROT180);
 				carAng = 0;
+				car.move(0, car.getWidth());
+			}
+			else if (carAng == 0)
+			{
+				car.setTransform(Sprite.TRANS_ROT270);
+				carAng = 90;
+				car.move(-car.getHeight(), 0);
+			}
+			else if (carAng == 90)
+			{
+				car.setTransform(Sprite.TRANS_NONE);
+				carAng = 180;
 				car.move(0, -car.getWidth());
 			}
 		}

@@ -9,7 +9,7 @@ public class Player extends Entity
 	
 	Player()
 	{
-		carAng = 0;
+		carAng = 180;
 		speed = 0;
 		dx = dy = 0;
 	}
@@ -21,8 +21,8 @@ public class Player extends Entity
 		ang += car.getFrame() * 45/2;
 		double dsin = Math.sin(ang*Math.PI/180)*speed;
 		double dcos = Math.cos(ang*Math.PI/180)*speed;
-		dx = (int)dsin;
-		dy = -(int)dcos;
+		dx = -(int)dsin;
+		dy = (int)dcos;
 		
 		x += dx;
 		if ( x <= tileWidth )
