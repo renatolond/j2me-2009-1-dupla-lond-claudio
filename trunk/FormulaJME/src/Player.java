@@ -1,3 +1,5 @@
+import java.util.Date;
+
 import javax.microedition.lcdui.game.Sprite;
 
 
@@ -12,6 +14,7 @@ public class Player extends Entity
 		carAng = 180;
 		speed = 0;
 		dx = dy = 0;
+		lap = checkpoint = 0;
 	}
 	
 	void update()
@@ -24,16 +27,35 @@ public class Player extends Entity
 		dx = -(int)dsin;
 		dy = (int)dcos;
 		
+		double vx, vy, dist;
+		vy = waypoint[checkpoint].y - y;
+		vx = waypoint[checkpoint].x - x;
+		dist = (vx*vx) + (vy*vy);
+		dist = Math.sqrt(dist);
+		
+		if ( dist <= tileHeight *2 )
+		{
+			time = new Date();
+			canvas.setMsg(time.toString());
+			checkpoint++;
+			if ( checkpoint == waypoint.length )
+			{
+				lap++;
+				checkpoint %= waypoint.length;
+			}
+			return;
+		}
+		
 		x += dx;
 		if ( x <= tileWidth )
 		{
 			dx = dx + (tileWidth - x);
 			x = tileWidth;
 		}
-		if ( x >= (size*tileWidth-1)-tileWidth/2 )
+		if ( x >= (mapWidth*tileWidth-1)-tileWidth/2 )
 		{
-			dx = dx - (x - ((size*tileWidth-1)-tileWidth/2));
-			x = (size*tileWidth-1)-tileWidth/2;
+			dx = dx - (x - ((mapWidth*tileWidth-1)-tileWidth/2));
+			x = (mapWidth*tileWidth-1)-tileWidth/2;
 		}
 		
 		y += dy;
@@ -42,10 +64,10 @@ public class Player extends Entity
 			dy = dy + (tileHeight - y);
 			y = tileHeight;
 		}
-		if ( y >= (size*tileHeight-1)-tileHeight/2 )
+		if ( y >= (mapHeight*tileHeight-1)-tileHeight/2 )
 		{
-			dy = dy - (y - ((size*tileHeight-1)-tileHeight/2));
-			y = (size*tileHeight-1)-tileHeight/2;
+			dy = dy - (y - ((mapHeight*tileHeight-1)-tileHeight/2));
+			y = (mapHeight*tileHeight-1)-tileHeight/2;
 		}
 		
 		if ( dx == 0 && dy == 0 )

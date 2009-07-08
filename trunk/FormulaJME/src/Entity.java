@@ -1,3 +1,6 @@
+import java.util.Date;
+
+import javax.microedition.lcdui.DateField;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.game.Sprite;
 
@@ -30,12 +33,17 @@ public class Entity
 
 	protected static final int tileHeight = (750/10);
 	protected static final int tileWidth = (675/9);
-	protected static final int size = 14;
+	protected static final int mapWidth = 14;
+	protected static final int mapHeight = 30;
 	protected static Player player;
-	public static Ponto[] waypoint = new Ponto[4];
+	public static FormulaCanvas canvas;
+	public static Ponto[] waypoint = new Ponto[5];
 	public Sprite car;
 	protected int speed;
 	protected int carAng;
+	public int lap;
+	protected int checkpoint;
+	public Date time;
 	
 	public void paint(Graphics g)
 	{
