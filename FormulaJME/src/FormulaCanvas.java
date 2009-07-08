@@ -125,6 +125,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		Entity.waypoint[2] = new Ponto((mapWidth-3)*tileWidth, (mapHeight-3)*tileHeight);
 		Entity.waypoint[3] = new Ponto( 3*tileWidth, (mapHeight-3)*tileHeight);
 		Entity.canvas = this;
+		Entity.map = map;
 		try
 		{
 			speed = 0;

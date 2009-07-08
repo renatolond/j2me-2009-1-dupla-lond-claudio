@@ -38,6 +38,7 @@ public class Entity
 	protected static Player player;
 	public static FormulaCanvas canvas;
 	public static Ponto[] waypoint = new Ponto[5];
+	public static int[] map;
 	public Sprite car;
 	protected int speed;
 	protected int carAng;
