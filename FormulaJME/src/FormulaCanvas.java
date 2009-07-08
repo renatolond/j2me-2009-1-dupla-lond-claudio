@@ -29,6 +29,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	private Sprite redCar, blueCar, greenCar;
 	private Image[] pista = new Image[10*9];
 	private Player player;
+	int position;
 	int maxEnemies = 2;
 	Enemy enemies[] = new Enemy[maxEnemies]; 
 	private int[] map = {   80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
@@ -82,6 +83,28 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	public void setMsg(String s)
 	{
 		msg = s;
+		position = 1;
+		
+		for ( int i = 0 ; i < maxEnemies ; i++ )
+		{
+			if ( player.lap < enemies[i].lap )
+			{
+				position++;
+				continue;
+			}
+			else if ( player.lap == enemies[i].lap )
+				if ( player.checkpoint < enemies[i].checkpoint )
+				{
+					position++;
+					continue;
+				}
+				else if ( player.checkpoint == enemies[i].checkpoint )
+					if ( player.time.getTime() > enemies[i].time.getTime() )
+					{
+						position++;
+						continue;
+					}
+		}
 	}
 
 	public void start()
@@ -96,10 +119,11 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		// Initialize the game variables
 		gameOver = false;
 		msg = new String();
+		position = 1;
 		Entity.waypoint[0] = new Ponto( 3*tileWidth,  3*tileHeight);
-		Entity.waypoint[1] = new Ponto(11*tileWidth,  3*tileHeight);
-		Entity.waypoint[2] = new Ponto(11*tileWidth, 27*tileHeight);
-		Entity.waypoint[3] = new Ponto( 3*tileWidth, 27*tileHeight);
+		Entity.waypoint[1] = new Ponto((mapWidth-3)*tileWidth,  3*tileHeight);
+		Entity.waypoint[2] = new Ponto((mapWidth-3)*tileWidth, (mapHeight-3)*tileHeight);
+		Entity.waypoint[3] = new Ponto( 3*tileWidth, (mapHeight-3)*tileHeight);
 		Entity.canvas = this;
 		try
 		{
@@ -226,41 +250,19 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		for ( int i = 0 ; i < maxEnemies ; i++ )
 			enemies[i].paint(g);
 		player.paint(g);
-		
-		g.drawString(player.lap+1 + "/" + maxLaps, 0, 0, Graphics.TOP | Graphics.LEFT);
-		//if ( msg.trim() != "" )
+		if (!gameOver)
 		{
+			g.drawString("LAP: "+(player.lap+1) + "/" + maxLaps, 0, 0, Graphics.TOP | Graphics.LEFT);
 			g.drawString(msg, 0, 10, Graphics.TOP | Graphics.LEFT);
+			g.drawString("POS: "+position + "/" + (maxEnemies+1), 0, celHeight-20, Graphics.TOP | Graphics.LEFT);
 		}
 		
 		if ( gameOver )
 		{
 			g.drawString("Game Over!", celHeight/2, celWidth/2, Graphics.TOP | Graphics.LEFT);
 			
-			boolean ganhou = true;
 			
-			for ( int i = 0 ; i < maxEnemies ; i++ )
-			{
-				if ( player.lap < enemies[i].lap )
-				{
-					ganhou = false;
-					break;
-				}
-					
-				if ( player.lap == enemies[i].lap )
-					if ( player.checkpoint < enemies[i].checkpoint )
-					{
-						ganhou = false;
-						break;
-					}
-					else if ( player.checkpoint == enemies[i].checkpoint )
-						if ( player.time.getTime() > enemies[i].time.getTime() )
-						{
-							ganhou = false;
-							break;
-						}
-			}
-			if ( ganhou )
+			if ( position == 1 )
 				g.drawString("You Win!!", celWidth/2, celHeight/2 +20, Graphics.TOP | Graphics.LEFT);
 			else
 				g.drawString("You lose!", celWidth/2, celHeight/2 +20, Graphics.TOP | Graphics.LEFT);

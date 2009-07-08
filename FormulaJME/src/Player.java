@@ -36,13 +36,13 @@ public class Player extends Entity
 		if ( dist <= tileHeight *2 )
 		{
 			time = new Date();
-			canvas.setMsg(time.toString());
 			checkpoint++;
 			if ( checkpoint == waypoint.length )
 			{
 				lap++;
 				checkpoint %= waypoint.length;
 			}
+			canvas.setMsg(time.toString());
 			return;
 		}
 		
