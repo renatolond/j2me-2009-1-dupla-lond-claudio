@@ -23,7 +23,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private static final int galinhas = 4;
 	private static final int carros = 3;
 	private static final int maxSplatters = 10;
-	private static final int tempo = 5;
+	private static final int tempo = 30;
 	private Sprite[] chickenSprite = new Sprite[galinhas];
 	private int[] chickenXSpeed = new int[galinhas];
 	private Sprite[] carSprite = new Sprite[carros];
@@ -37,6 +37,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private int celHeight;
 	private int celWidth;
 	public Contador contador;
+	public Timer timer;
 	
 
 	public HCanvas(Display d)
@@ -45,7 +46,6 @@ public class HCanvas extends GameCanvas implements Runnable
 		display = d;
 		celHeight = getHeight();
 		celWidth = getWidth();
-		contador = new Contador(tempo);
 
 		// Set the frame rate (30 fps)
 		frameDelay = 33;
@@ -63,13 +63,14 @@ public class HCanvas extends GameCanvas implements Runnable
 		rand = new Random();
 
 		// Initialize the game variables
-		
-		 Timer timer = new Timer();
-		 timer.schedule(new Finalizador(), tempo*1000, tempo*1000);
-		 
+				 
 		gameOver = false;
 		score = 0;
 		bloodQ = new SpriteQueue();
+
+		timer = new Timer();
+		timer.schedule(new Finalizador(), tempo*1000, tempo*1000);
+		contador = new Contador(tempo);
 
 		// Initialize the background image and chicken and car sprites
 		try
@@ -117,7 +118,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	public void run()
 	{
 		Graphics g = getGraphics();
-
+		
 		// The main game loop
 		while (!sleeping)
 		{
@@ -145,7 +146,9 @@ public class HCanvas extends GameCanvas implements Runnable
 				resetPositions();
 				gameOver = false;
 				score = 0;
-
+				timer = new Timer();
+				timer.schedule(new Finalizador(), tempo*1000, tempo*1000);
+				contador = new Contador(tempo);
 			}
 
 			// The game is over, so don't update anything
@@ -334,7 +337,6 @@ public class HCanvas extends GameCanvas implements Runnable
 		if (gameOver)
 		{
 			
-			contador.cancel();
 			// Draw the game over message and score
 			g.setColor(255, 255, 255); // white
 			g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
@@ -345,6 +347,8 @@ public class HCanvas extends GameCanvas implements Runnable
 			g.drawString("You scored " + score + " points.", 90, 70,
 					Graphics.TOP | Graphics.HCENTER);
 			
+			timer.cancel();
+			contador.cancel();
 
 		}
 
@@ -444,12 +448,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	    {
 	        return tempoAtual;
 	    }
-	   
-	    public void restart()
-	    {
-	        this.tempoAtual = 0;
-	    }
-	   
+	   	   
 	}
 	
 	
