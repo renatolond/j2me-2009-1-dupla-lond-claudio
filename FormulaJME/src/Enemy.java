@@ -1,18 +1,26 @@
+import java.util.Date;
+import java.util.Random;
+
 import javax.microedition.lcdui.game.Sprite;
 
 
 public class Enemy extends Entity
 {
-	int wayPoint;
 	int delay;
+	int maxDelay;
+	Random rand;
 	
 	Enemy(Sprite s)
 	{
+		rand = new Random();
 		car = s;
 		carAng = 180;
-		wayPoint = 0;
-		speed = 3;
+		checkpoint = 0;
+		lap = 0;
+		speed = 6;
 		delay = 0;
+		maxDelay = rand.nextInt() % 10;
+		time = new Date();
 	}
 	
 	void move(int x, int y)
@@ -28,15 +36,19 @@ public class Enemy extends Entity
 		int ry, rx;
 		ry = player.y + (car.getY()-player.car.getY());
 		rx = player.x + (car.getX()-player.car.getX());
-		vy = waypoint[wayPoint].y - ry;
-		vx = waypoint[wayPoint].x - rx;
+		vy = waypoint[checkpoint].y - ry;
+		vx = waypoint[checkpoint].x - rx;
 		
 		dist = (vx*vx) + (vy*vy);
 		dist = Math.sqrt(dist);
-		if ( dist <= car.getHeight()/2 )
+		if ( dist <= car.getHeight()*2/3 )
 		{
-			wayPoint++;
-			wayPoint %= 4;
+			checkpoint++;
+			if ( checkpoint == waypoint.length )
+			{
+				lap++;
+				checkpoint %= waypoint.length;
+			}
 			return;
 		}
 		//vy = vx = 0;
@@ -63,17 +75,22 @@ public class Enemy extends Entity
 		double clock = (vx*dy) - (vy*dx);
 		double gamma = mMath.acos(dot);
 		
-		if ( gamma >= Math.PI/4 )
+		if ( ++delay > maxDelay )
+		if ( gamma >= Math.PI/16 )
 		{
 			if ( clock < 0 )
 			{
 				car.nextFrame();
 				turnRight();
+				delay = 0;
+				maxDelay = rand.nextInt() % 10;
 			}
 			else
 			{
 				car.prevFrame();
 				turnLeft();
+				delay = 0;
+				maxDelay = rand.nextInt() % 10;
 			}
 		}
 		

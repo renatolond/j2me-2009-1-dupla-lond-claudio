@@ -1,8 +1,8 @@
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Random;
 
 import javax.microedition.lcdui.Display;
+import javax.microedition.lcdui.Font;
 import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
@@ -12,12 +12,15 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 {
 	private static final int tileHeight = (750/10);
 	private static final int tileWidth = (675/9);
-	private static final int size = 14;
+	private static final int mapWidth = 14;
+	private static final int mapHeight = 30;
+	private static final int maxLaps = 3;
 	private int inputDelay;
 	private int frameDelay;
 	private int celWidth;
 	private int celHeight;
 	private Display display;
+	private String msg;
 	private boolean sleeping;
 	private boolean gameOver;
 	private int speed;
@@ -34,8 +37,24 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 							80, 80, 10, 11, 53, 53, 53, 53, 53, 53, 12, 13, 80, 80,
 							80, 80, 50, 51, 60, 61, 60, 61, 60, 61, 50, 51, 80, 80,
 							80, 80, 50, 51, 70, 71, 70, 71, 70, 71, 50, 51, 80, 80,
-							80, 80, 50, 51, 23, 23, 80, 80, 21, 21, 50, 51, 80, 80,
-							80, 80, 50, 51, 23, 23, 80, 80, 21, 21, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
 							80, 80, 50, 51, 64, 65, 64, 65, 64, 65, 50, 51, 80, 80,
 							80, 80, 50, 51, 74, 75, 74, 75, 74, 75, 50, 51, 80, 80,
 							80, 80, 20, 21, 52, 52, 52, 52, 52, 52, 22, 23, 80, 80,
@@ -59,6 +78,11 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		// Clear the input delay
 		inputDelay = 0;
 	}
+	
+	public void setMsg(String s)
+	{
+		msg = s;
+	}
 
 	public void start()
 	{
@@ -71,12 +95,12 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 
 		// Initialize the game variables
 		gameOver = false;
+		msg = new String();
 		Entity.waypoint[0] = new Ponto( 3*tileWidth,  3*tileHeight);
 		Entity.waypoint[1] = new Ponto(11*tileWidth,  3*tileHeight);
-		Entity.waypoint[2] = new Ponto(11*tileWidth, 11*tileHeight);
-		Entity.waypoint[3] = new Ponto( 3*tileWidth, 11*tileHeight);
-		player = new Player();
-		Entity.player = player;
+		Entity.waypoint[2] = new Ponto(11*tileWidth, 27*tileHeight);
+		Entity.waypoint[3] = new Ponto( 3*tileWidth, 27*tileHeight);
+		Entity.canvas = this;
 		try
 		{
 			speed = 0;
@@ -107,6 +131,16 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		resetState();
+		Entity.waypoint[4] = new Ponto( player.x, player.y - player.car.getHeight() );
+		Thread t = new Thread(this);
+		t.start();
+	}
+
+	private void resetState()
+	{
+		player = new Player();
+		Entity.player = player;
 		player.x = celWidth / 2 - redCar.getWidth()/2;
 		player.y = celHeight / 2 - redCar.getHeight()/2;
 		
@@ -125,8 +159,6 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		player.setSprite(redCar);
 
 		sleeping = false;
-		Thread t = new Thread(this);
-		t.start();
 	}
 
 	public void stop()
@@ -178,11 +210,11 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			for (int j = 0; j < amountY; j++)
 			{
 				int p;
-				p = (mapX+i)+(mapY+j)*size;
-				if ( p >= (size*size) ) continue;
+				p = (mapX+i)+(mapY+j)*mapWidth;
+				if ( p >= (mapHeight*mapWidth) ) p = 0;
 				try
 				{
-				g.drawImage(pista[map[p]], i*tileWidth - sobraX, j*tileHeight - sobraY, Graphics.LEFT|Graphics.TOP);
+					g.drawImage(pista[map[p]], i*tileWidth - sobraX, j*tileHeight - sobraY, Graphics.LEFT|Graphics.TOP);
 				}
 				catch (Exception e)
 				{
@@ -194,11 +226,37 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		for ( int i = 0 ; i < maxEnemies ; i++ )
 			enemies[i].paint(g);
 		player.paint(g);
+		
+		g.drawString(player.lap+1 + "/" + maxLaps, 0, 0, Graphics.TOP | Graphics.LEFT);
+		//if ( msg.trim() != "" )
+		{
+			g.drawString(msg, 0, 10, Graphics.TOP | Graphics.LEFT);
+		}
+		
+		if ( gameOver )
+		{
+			g.drawString("Game Over!", celHeight/2, celWidth/2, Graphics.TOP | Graphics.LEFT);
+		}
 		flushGraphics();
 	}
 
 	private void update()
 	{
+		if ( player.lap == maxLaps )
+		{
+			gameOver = true;
+		}
+		if ( gameOver )
+		{
+			int keyState = getKeyStates();
+			if ((keyState & FIRE_PRESSED) != 0)
+			{
+				gameOver = false;
+				resetState();
+			}
+			
+			return;
+		}
 		if (++inputDelay > 3)
 		{
 			int keyState = getKeyStates();
