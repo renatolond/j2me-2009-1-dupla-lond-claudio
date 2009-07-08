@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.microedition.lcdui.AlertType;
 import javax.microedition.lcdui.Display;
@@ -21,6 +23,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private static final int galinhas = 4;
 	private static final int carros = 3;
 	private static final int maxSplatters = 10;
+	private static final int tempo = 5;
 	private Sprite[] chickenSprite = new Sprite[galinhas];
 	private int[] chickenXSpeed = new int[galinhas];
 	private Sprite[] carSprite = new Sprite[carros];
@@ -30,18 +33,19 @@ public class HCanvas extends GameCanvas implements Runnable
 	private int[] carYSpeed = new int[carros];
 	private SpriteQueue bloodQ;
 	private boolean gameOver;
-	private int numLives;
 	private int score;
 	private int celHeight;
 	private int celWidth;
+	public Contador contador;
+	
 
 	public HCanvas(Display d)
 	{
 		super(true);
 		display = d;
-
 		celHeight = getHeight();
 		celWidth = getWidth();
+		contador = new Contador(tempo);
 
 		// Set the frame rate (30 fps)
 		frameDelay = 33;
@@ -59,8 +63,11 @@ public class HCanvas extends GameCanvas implements Runnable
 		rand = new Random();
 
 		// Initialize the game variables
+		
+		 Timer timer = new Timer();
+		 timer.schedule(new Finalizador(), tempo*1000, tempo*1000);
+		 
 		gameOver = false;
-		numLives = 3;
 		score = 0;
 		bloodQ = new SpriteQueue();
 
@@ -138,7 +145,7 @@ public class HCanvas extends GameCanvas implements Runnable
 				resetPositions();
 				gameOver = false;
 				score = 0;
-				numLives = 3;
+
 			}
 
 			// The game is over, so don't update anything
@@ -215,14 +222,8 @@ public class HCanvas extends GameCanvas implements Runnable
 				AlertType.ERROR.playSound(display);
 
 				// Check for a game over
-				if (--numLives == 0)
-				{
-					gameOver = true;
-				} else
-				{
 					// Reset positions
-					resetPositions();
-				}
+				resetPositions();
 
 				// No need to continue updating the chicken sprites
 				break;
@@ -243,14 +244,8 @@ public class HCanvas extends GameCanvas implements Runnable
 				AlertType.ERROR.playSound(display);
 
 				// Check for a game over
-				if (--numLives == 0)
-				{
-					gameOver = true;
-				} else
-				{
-					// Reset positions
-					resetPositions();
-				}
+				// Reset positions
+				resetPositions();
 
 				// No need to continue updating the car sprites
 				break;
@@ -319,12 +314,11 @@ public class HCanvas extends GameCanvas implements Runnable
 		{
 			bloodQ.at(i).paint(g);
 		}
-
-		// Draw the number of remaining lives
-		for (int i = 0; i < numLives; i++)
-			g.drawImage(chickenHead, celWidth - ((i + 1) * 8), celHeight - 15,
-					Graphics.TOP | Graphics.LEFT);
-
+		
+		g.setColor(255, 255, 255); // white
+		g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,Font.SIZE_LARGE));
+		g.drawString(Integer.toString(contador.getTempoTranscorrido()+1), celWidth -15, celHeight-30, Graphics.TOP | Graphics.HCENTER);
+		
 		// Draw the chicken sprite
 		for (int i = 0; i < galinhas; i++)
 		{
@@ -339,6 +333,8 @@ public class HCanvas extends GameCanvas implements Runnable
 
 		if (gameOver)
 		{
+			
+			contador.cancel();
 			// Draw the game over message and score
 			g.setColor(255, 255, 255); // white
 			g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,
@@ -348,6 +344,8 @@ public class HCanvas extends GameCanvas implements Runnable
 					Font.SIZE_MEDIUM));
 			g.drawString("You scored " + score + " points.", 90, 70,
 					Graphics.TOP | Graphics.HCENTER);
+			
+
 		}
 
 		// Flush the offscreen graphics buffer
@@ -413,4 +411,46 @@ public class HCanvas extends GameCanvas implements Runnable
 		
 		return touched;
 	}
+	
+	private class Finalizador extends TimerTask
+	{
+		public void run()
+		{
+			gameOver = true;
+		}
+	}
+	
+	public class Contador extends Timer
+	{  
+	    private int tempoAtual;
+	   
+	    public Contador(int tempo)
+	    {
+	    	tempoAtual = tempo;
+	        scheduleAtFixedRate(new TimerTask()
+	        {
+	            public void run(){
+	                tempoAtual--;
+	            }
+	        }, 0, 1000);
+	    }
+	    public void scheduleAtFixedRate(TimerTask task, long delay, long period)
+	    {
+	       
+	        super.scheduleAtFixedRate(task, delay, period);
+	    }
+	   
+	    public int getTempoTranscorrido()
+	    {
+	        return tempoAtual;
+	    }
+	   
+	    public void restart()
+	    {
+	        this.tempoAtual = 0;
+	    }
+	   
+	}
+	
+	
 }
