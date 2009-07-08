@@ -236,6 +236,35 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		if ( gameOver )
 		{
 			g.drawString("Game Over!", celHeight/2, celWidth/2, Graphics.TOP | Graphics.LEFT);
+			
+			boolean ganhou = true;
+			
+			for ( int i = 0 ; i < maxEnemies ; i++ )
+			{
+				if ( player.lap < enemies[i].lap )
+				{
+					ganhou = false;
+					break;
+				}
+					
+				if ( player.lap == enemies[i].lap )
+					if ( player.checkpoint < enemies[i].checkpoint )
+					{
+						ganhou = false;
+						break;
+					}
+					else if ( player.checkpoint == enemies[i].checkpoint )
+						if ( player.time.getTime() > enemies[i].time.getTime() )
+						{
+							ganhou = false;
+							break;
+						}
+			}
+			if ( ganhou )
+				g.drawString("You Win!!", celWidth/2, celHeight/2 +20, Graphics.TOP | Graphics.LEFT);
+			else
+				g.drawString("You lose!", celWidth/2, celHeight/2 +20, Graphics.TOP | Graphics.LEFT);
+
 		}
 		flushGraphics();
 	}

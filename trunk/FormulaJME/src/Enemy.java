@@ -17,7 +17,7 @@ public class Enemy extends Entity
 		carAng = 180;
 		checkpoint = 0;
 		lap = 0;
-		speed = 6;
+		speed = 7;
 		delay = 0;
 		maxDelay = rand.nextInt() % 10;
 		time = new Date();
@@ -43,6 +43,7 @@ public class Enemy extends Entity
 		dist = Math.sqrt(dist);
 		if ( dist <= car.getHeight()*2/3 )
 		{
+			time = new Date();
 			checkpoint++;
 			if ( checkpoint == waypoint.length )
 			{
