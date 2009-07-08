@@ -36,13 +36,15 @@ public class Enemy extends Entity
 		double vy, vx;
 		double dist;
 		int ry, rx;
-		vy = waypoint[checkpoint].y - car.getX();
-		vx = waypoint[checkpoint].x - car.getY();
+		
+		vy = waypoint[checkpoint].y - car.getY();
+		vx = waypoint[checkpoint].x - car.getX();
 		dist = (vx*vx) + (vy*vy);
 		dist = Math.sqrt(dist);
 
-		if ( dist <= car.getHeight()*2/3 )
+		/*if ( dist <= tileHeight*3 )
 		{
+			System.out.println("passando no checkpoint!");
 			time = new Date();
 			checkpoint++;
 			if ( checkpoint == waypoint.length )
@@ -51,7 +53,7 @@ public class Enemy extends Entity
 				checkpoint %= waypoint.length;
 			}
 			return;
-		}
+		}*/
 		ry = player.y + (car.getY()-player.car.getY());
 		rx = player.x + (car.getX()-player.car.getX());
 		vy = waypoint[wayPoint].y - ry;
@@ -59,6 +61,19 @@ public class Enemy extends Entity
 		
 		dist = (vx*vx) + (vy*vy);
 		dist = Math.sqrt(dist);
+		if ( dist <= car.getHeight()/2 )
+		{
+			wayPoint++;
+			time = new Date();
+			if ( wayPoint == waypoint.length )
+			{
+				lap++;
+
+				wayPoint %= waypoint.length;
+			}
+			checkpoint = wayPoint;
+			return;
+		}
 		//vy = vx = 0;
 		//vx = 10;
 		teta = mMath.atan2(vy, vx);

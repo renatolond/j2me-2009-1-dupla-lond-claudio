@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.util.Date;
 import java.util.Random;
 
 import javax.microedition.lcdui.Display;
@@ -7,6 +8,8 @@ import javax.microedition.lcdui.Graphics;
 import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
+
+import com.sun.perseus.model.Time;
 
 public class FormulaCanvas extends GameCanvas implements Runnable
 {
@@ -32,37 +35,39 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 	int position;
 	int maxEnemies = 2;
 	Enemy enemies[] = new Enemy[maxEnemies]; 
-	private int[] map = {   80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
-							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
-							80, 80,  0,  1, 52, 52, 52, 52, 52, 52,  2,  3, 80, 80,
-							80, 80, 10, 11, 53, 53, 53, 53, 53, 53, 12, 13, 80, 80,
-							80, 80, 50, 51, 60, 61, 60, 61, 60, 61, 50, 51, 80, 80,
-							80, 80, 50, 51, 70, 71, 70, 71, 70, 71, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 80, 80,
-							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 80, 80,
-							80, 80, 50, 51, 64, 65, 64, 65, 64, 65, 50, 51, 80, 80,
-							80, 80, 50, 51, 74, 75, 74, 75, 74, 75, 50, 51, 80, 80,
-							80, 80, 20, 21, 52, 52, 52, 52, 52, 52, 22, 23, 80, 80,
-							80, 80, 30, 31, 53, 53, 53, 53, 53, 53, 32, 33, 80, 80,
-							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80,
-							80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80};
+	private int[] map = {   80, 
+							64, 65, 64, 65, 64, 65, 64, 65, 64, 65, 64, 65, 64, 65, 
+							74, 75, 74, 75, 74, 75, 74, 75, 74, 75, 74, 75, 74, 75, 
+							80, 80,  0,  1, 52, 52, 52, 52, 52, 52,  2,  3, 66, 67, 
+							80, 80, 10, 11, 53, 53, 53, 53, 53, 53, 12, 13, 76, 77,
+							80, 80, 50, 51, 60, 61, 60, 61, 60, 61, 50, 51, 66, 67, 
+							80, 80, 50, 51, 70, 71, 70, 71, 70, 71, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 76, 77,
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 66, 67, 
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 66, 67, 
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 76, 77,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 66, 67, 
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 76, 77,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 66, 67, 
+							80, 80, 50, 51, 66, 67, 80, 80, 62, 63, 50, 51, 76, 77,
+							80, 80, 50, 51, 76, 77, 80, 80, 72, 73, 50, 51, 66, 67, 
+							80, 80, 50, 51, 64, 65, 64, 65, 64, 65, 50, 51, 76, 77,
+							80, 80, 50, 51, 74, 75, 74, 75, 74, 75, 50, 51, 66, 67, 
+							80, 80, 20, 21, 52, 52, 52, 52, 52, 52, 22, 23, 76, 77,
+							80, 80, 30, 31, 53, 53, 53, 53, 53, 53, 32, 33, 66, 67, 
+							60, 61, 60, 61, 60, 61, 60, 61, 60, 61, 60, 61, 60, 61,
+							60, 61, 60, 61, 60, 61, 60, 61, 60, 61, 60, 61, 60, 61};
 	private int t;
+	private long startime;
 
 	protected FormulaCanvas(Display d)
 	{
@@ -80,13 +85,33 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 		inputDelay = 0;
 	}
 	
-	public void setMsg(String s)
+	private String parseTime(long time)
+    {
+            String s = "";
+
+            long min = (time-startime ) / 60 / 1000;
+            long seg = ((time-startime ) / 1000) - min * 60;
+
+            if (min < 10)
+                    s += "0" + min;
+            else
+                    s += min;
+
+            if (seg < 10)
+                    s += ":0" + seg;
+            else
+                    s += ":" + seg;
+
+            return s;
+    }
+	public void setMsg(long s)
 	{
-		msg = s;
+		msg = parseTime(s);
 		position = 1;
 		
 		for ( int i = 0 ; i < maxEnemies ; i++ )
 		{
+			//msg += player.checkpoint + " " + enemies[i].checkpoint;
 			if ( player.lap < enemies[i].lap )
 			{
 				position++;
@@ -115,6 +140,7 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 
 		// Initialize the random number generator
 		rand = new Random();
+		startime = (new Date()).getTime();
 
 		// Initialize the game variables
 		gameOver = false;
@@ -235,8 +261,8 @@ public class FormulaCanvas extends GameCanvas implements Runnable
 			for (int j = 0; j < amountY; j++)
 			{
 				int p;
-				p = (mapX+i)+(mapY+j)*mapWidth;
-				if ( p >= (mapHeight*mapWidth) ) p = 0;
+				p = ((mapX+i)+(mapY+j)*mapWidth) +1;
+				if ( p > (mapHeight*mapWidth) ) p = 0;
 				try
 				{
 					g.drawImage(pista[map[p]], i*tileWidth - sobraX, j*tileHeight - sobraY, Graphics.LEFT|Graphics.TOP);

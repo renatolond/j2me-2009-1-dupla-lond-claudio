@@ -30,7 +30,7 @@ public class Player extends Entity
 		int mapX = x / tileWidth; 
 		int mapY = y / tileHeight;
 		
-		int p = mapX + mapY*mapWidth;
+		int p = (mapX + mapY*mapWidth) + 1;
 		if ( p >= mapWidth*mapHeight )
 			p = 0;
 		
@@ -55,7 +55,7 @@ public class Player extends Entity
 				lap++;
 				checkpoint %= waypoint.length;
 			}
-			canvas.setMsg(time.toString());
+			canvas.setMsg(time.getTime());
 			return;
 		}
 		
