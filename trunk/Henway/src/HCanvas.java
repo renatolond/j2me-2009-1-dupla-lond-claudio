@@ -11,6 +11,8 @@ import javax.microedition.lcdui.Image;
 import javax.microedition.lcdui.game.GameCanvas;
 import javax.microedition.lcdui.game.Sprite;
 
+import com.sun.perseus.model.Rect;
+
 public class HCanvas extends GameCanvas implements Runnable
 {
 	private Display display;
@@ -38,6 +40,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	private int celWidth;
 	public Contador contador;
 	public Timer timer;
+	public int gaugeSlice, tempoAtual;
 	
 
 	public HCanvas(Display d)
@@ -46,6 +49,7 @@ public class HCanvas extends GameCanvas implements Runnable
 		display = d;
 		celHeight = getHeight();
 		celWidth = getWidth();
+		gaugeSlice = (celWidth-10)/tempo;
 
 		// Set the frame rate (30 fps)
 		frameDelay = 33;
@@ -321,7 +325,7 @@ public class HCanvas extends GameCanvas implements Runnable
 		g.setColor(255, 255, 255); // white
 		g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_BOLD,Font.SIZE_LARGE));
 		g.drawString(Integer.toString(contador.getTempoTranscorrido()+1), celWidth -15, celHeight-30, Graphics.TOP | Graphics.HCENTER);
-		
+		g.drawRect(5, 5, celWidth-10, 5);
 		// Draw the chicken sprite
 		for (int i = 0; i < galinhas; i++)
 		{
@@ -353,6 +357,8 @@ public class HCanvas extends GameCanvas implements Runnable
 		}
 
 		// Flush the offscreen graphics buffer
+		g.drawRect(5, 5, celWidth-10, 5);
+		g.fillRect(5, 5, celWidth-10-(gaugeSlice*(tempo-tempoAtual))-2, 5); 
 		flushGraphics();
 	}
 
@@ -426,8 +432,7 @@ public class HCanvas extends GameCanvas implements Runnable
 	
 	public class Contador extends Timer
 	{  
-	    private int tempoAtual;
-	   
+	       
 	    public Contador(int tempo)
 	    {
 	    	tempoAtual = tempo;
