@@ -9,6 +9,7 @@ public class Enemy extends Entity
 	int delay;
 	int maxDelay;
 	Random rand;
+	private int wayPoint;
 	
 	Enemy(Sprite s)
 	{
@@ -16,6 +17,7 @@ public class Enemy extends Entity
 		car = s;
 		carAng = 180;
 		checkpoint = 0;
+		wayPoint = 0;
 		lap = 0;
 		speed = 7;
 		delay = 0;
@@ -34,13 +36,11 @@ public class Enemy extends Entity
 		double vy, vx;
 		double dist;
 		int ry, rx;
-		ry = player.y + (car.getY()-player.car.getY());
-		rx = player.x + (car.getX()-player.car.getX());
-		vy = waypoint[checkpoint].y - ry;
-		vx = waypoint[checkpoint].x - rx;
-		
+		vy = waypoint[checkpoint].y - car.getX();
+		vx = waypoint[checkpoint].x - car.getY();
 		dist = (vx*vx) + (vy*vy);
 		dist = Math.sqrt(dist);
+
 		if ( dist <= car.getHeight()*2/3 )
 		{
 			time = new Date();
@@ -52,6 +52,13 @@ public class Enemy extends Entity
 			}
 			return;
 		}
+		ry = player.y + (car.getY()-player.car.getY());
+		rx = player.x + (car.getX()-player.car.getX());
+		vy = waypoint[wayPoint].y - ry;
+		vx = waypoint[wayPoint].x - rx;
+		
+		dist = (vx*vx) + (vy*vy);
+		dist = Math.sqrt(dist);
 		//vy = vx = 0;
 		//vx = 10;
 		teta = mMath.atan2(vy, vx);
