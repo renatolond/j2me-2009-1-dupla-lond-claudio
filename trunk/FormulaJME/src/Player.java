@@ -27,6 +27,19 @@ public class Player extends Entity
 		dx = -(int)dsin;
 		dy = (int)dcos;
 		
+		int mapX = x / tileWidth; 
+		int mapY = y / tileHeight;
+		
+		int p = mapX + mapY*mapWidth;
+		if ( p >= mapWidth*mapHeight )
+			p = 0;
+		
+		if ( map[p] == 80 )
+		{
+			if ( speed > 3 )
+				speed = (int)(speed * 0.9);
+		}
+		
 		double vx, vy, dist;
 		vy = waypoint[checkpoint].y - y;
 		vx = waypoint[checkpoint].x - x;
